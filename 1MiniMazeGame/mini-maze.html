@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Maze Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f1f5f9;
+      font-family: Arial, sans-serif;
+    }
+
+    .game-box {
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      text-align: center;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1e293b;
+    }
+
+    .info {
+      margin-bottom: 15px;
+      color: #475569;
+    }
+
+    .maze {
+      display: grid;
+      grid-template-columns: repeat(10, 40px);
+      grid-template-rows: repeat(10, 40px);
+      gap: 2px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 40px;
+      height: 40px;
+      background: #e2e8f0;
+      border-radius: 6px;
+    }
+
+    .wall {
+      background: #0f172a;
+    }
+
+    .player {
+      background: #22c55e;
+      border-radius: 50%;
+    }
+
+    .finish {
+      background: #facc15;
+      position: relative;
+    }
+
+    .finish::after {
+      content: "🏁";
+      font-size: 22px;
+      line-height: 40px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 55px);
+      gap: 8px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .controls button,
+    .reset-btn {
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 12px;
+    }
+
+    .controls button:hover,
+    .reset-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .empty {
+      visibility: hidden;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #16a34a;
+      min-height: 24px;
+    }
+
+    .reset-btn {
+      font-size: 16px;
+      margin-top: 10px;
+      padding: 10px 18px;
+      background: #0f172a;
+    }
+
+    @media (max-width: 520px) {
+      .maze {
+        grid-template-columns: repeat(10, 30px);
+        grid-template-rows: repeat(10, 30px);
+      }
+
+      .cell {
+        width: 30px;
+        height: 30px;
+      }
+
+      .finish::after {
+        font-size: 18px;
+        line-height: 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-box">
+    <h1>Mini Maze Game</h1>
+    <p class="info">Move the green player to the finish 🏁</p>
+
+    <div id="maze" class="maze"></div>
+
+    <div class="controls">
+      <div class="empty"></div>
+      <button onclick="movePlayer(0, -1)">↑</button>
+      <div class="empty"></div>
+
+      <button onclick="movePlayer(-1, 0)">←</button>
+      <button onclick="movePlayer(0, 1)">↓</button>
+      <button onclick="movePlayer(1, 0)">→</button>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <button class="reset-btn" onclick="resetGame()">Restart</button>
+  </div>
+
+  <script>
+    const mazeElement = document.getElementById("maze");
+    const messageElement = document.getElementById("message");
+
+    const mazeMap = [
+      ["S",0,1,0,0,0,1,0,0,0],
+      [1,0,1,0,1,0,1,0,1,0],
+      [0,0,0,0,1,0,0,0,1,0],
+      [0,1,1,1,1,1,1,0,1,0],
+      [0,0,0,0,0,0,1,0,0,0],
+      [1,1,1,1,1,0,1,1,1,0],
+      [0,0,0,0,1,0,0,0,1,0],
+      [0,1,1,0,1,1,1,0,1,0],
+      [0,0,1,0,0,0,0,0,1,0],
+      [1,0,0,0,1,1,1,0,0,"F"]
+    ];
+
+    let player = { x: 0, y: 0 };
+    let gameFinished = false;
+
+    function drawMaze() {
+      mazeElement.innerHTML = "";
+
+      for (let y = 0; y < mazeMap.length; y++) {
+        for (let x = 0; x < mazeMap[y].length; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+
+          if (mazeMap[y][x] === 1) cell.classList.add("wall");
+          if (mazeMap[y][x] === "F") cell.classList.add("finish");
+          if (player.x === x && player.y === y) cell.classList.add("player");
+
+          mazeElement.appendChild(cell);
+        }
+      }
+    }
+
+    function movePlayer(dx, dy) {
+      if (gameFinished) return;
+
+      const newX = player.x + dx;
+      const newY = player.y + dy;
+
+      if (
+        newY < 0 || newY >= mazeMap.length ||
+        newX < 0 || newX >= mazeMap[0].length
+      ) return;
+
+      if (mazeMap[newY][newX] === 1) return;
+
+      player.x = newX;
+      player.y = newY;
+
+      if (mazeMap[player.y][player.x] === "F") {
+        messageElement.textContent = "You win! 🎉";
+        gameFinished = true;
+      }
+
+      drawMaze();
+    }
+
+    function resetGame() {
+      player = { x: 0, y: 0 };
+      gameFinished = false;
+      messageElement.textContent = "";
+      drawMaze();
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "ArrowUp") movePlayer(0, -1);
+      else if (event.key === "ArrowDown") movePlayer(0, 1);
+      else if (event.key === "ArrowLeft") movePlayer(-1, 0);
+      else if (event.key === "ArrowRight") movePlayer(1, 0);
+    });
+
+    drawMaze();
+  </script>
+</body>
+</html>
