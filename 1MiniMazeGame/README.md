@@ -36,17 +36,9 @@ mini-maze.html
 * Simple maze logic
 * Restart button
 
-### 🌐 Live demo
-
-(If using GitHub Pages)
-
-```
-https://your-username.github.io/mini-maze/
-```
-
 ---
 
-## 🇨🇿 Česká verze
+## Česká verze
 
 Jednoduchá webová hra vytvořená pomocí **HTML, CSS a JavaScriptu**.
 
@@ -82,10 +74,3 @@ mini-maze.html
 * Jednoduchá logika bludiště
 * Restart hry
 
-### 🌐 Online verze
-
-(Pokud použiješ GitHub Pages)
-
-```
-https://your-username.github.io/mini-maze/
-```
