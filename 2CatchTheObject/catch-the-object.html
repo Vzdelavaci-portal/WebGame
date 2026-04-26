@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>WebGame #2 - Catch the Object</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f1f5f9;
+      font-family: Arial, sans-serif;
+    }
+
+    .game-box {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1e293b;
+    }
+
+    .info {
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 15px 0;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      background: linear-gradient(#dbeafe, #eff6ff);
+      border: 3px solid #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+
+    .player {
+      position: absolute;
+      bottom: 18px;
+      left: 210px;
+      width: 80px;
+      height: 22px;
+      background: #2563eb;
+      border-radius: 12px;
+    }
+
+    .object {
+      position: absolute;
+      top: 0;
+      left: 230px;
+      width: 34px;
+      height: 34px;
+      background: #facc15;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .message {
+      min-height: 26px;
+      margin-top: 14px;
+      font-weight: bold;
+      color: #dc2626;
+    }
+
+    .buttons {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      background: #0f172a;
+      color: white;
+      padding: 11px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e293b;
+    }
+
+    .mobile-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .mobile-controls button {
+      width: 70px;
+      font-size: 22px;
+      background: #2563eb;
+    }
+
+    .mobile-controls button:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-box">
+    <h1>WebGame #2 - Catch the Object</h1>
+    <p class="info">Move the blue platform and catch the falling object.</p>
+
+    <div class="stats">
+      <div>Score: <span id="score">0</span></div>
+      <div>Lives: <span id="lives">3</span></div>
+    </div>
+
+    <div id="gameArea" class="game-area">
+      <div id="object" class="object"></div>
+      <div id="player" class="player"></div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="mobile-controls">
+      <button id="leftBtn">←</button>
+      <button id="rightBtn">→</button>
+    </div>
+
+    <div class="buttons">
+      <button onclick="startGame()">Start</button>
+      <button onclick="resetGame()">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const player = document.getElementById("player");
+    const object = document.getElementById("object");
+    const scoreElement = document.getElementById("score");
+    const livesElement = document.getElementById("lives");
+    const messageElement = document.getElementById("message");
+
+    const gameWidth = 520;
+    const gameHeight = 420;
+
+    let playerX = 210;
+    let objectX = 230;
+    let objectY = 0;
+
+    let score = 0;
+    let lives = 3;
+
+    let objectSpeed = 3;
+    let playerSpeed = 22;
+
+    let gameRunning = false;
+    let gameLoop;
+
+    function drawGame() {
+      player.style.left = playerX + "px";
+      object.style.left = objectX + "px";
+      object.style.top = objectY + "px";
+
+      scoreElement.textContent = score;
+      livesElement.textContent = lives;
+    }
+
+    function randomObjectPosition() {
+      objectX = Math.floor(Math.random() * (gameWidth - 34));
+      objectY = 0;
+    }
+
+    function movePlayer(direction) {
+      if (!gameRunning) return;
+
+      playerX += direction * playerSpeed;
+
+      if (playerX < 0) {
+        playerX = 0;
+      }
+
+      if (playerX > gameWidth - 80) {
+        playerX = gameWidth - 80;
+      }
+
+      drawGame();
+    }
+
+    function updateGame() {
+      objectY += objectSpeed;
+
+      const objectBottom = objectY + 34;
+      const playerTop = gameHeight - 18 - 22;
+
+      const objectCenter = objectX + 17;
+
+      const caught =
+        objectBottom >= playerTop &&
+        objectCenter >= playerX &&
+        objectCenter <= playerX + 80;
+
+      if (caught) {
+        score++;
+        objectSpeed += 0.25;
+        randomObjectPosition();
+      }
+
+      if (objectY > gameHeight) {
+        lives--;
+        randomObjectPosition();
+
+        if (lives <= 0) {
+          endGame();
+          return;
+        }
+      }
+
+      drawGame();
+    }
+
+    function startGame() {
+      if (gameRunning) return;
+
+      gameRunning = true;
+      messageElement.textContent = "";
+      gameLoop = setInterval(updateGame, 20);
+    }
+
+    function endGame() {
+      gameRunning = false;
+      clearInterval(gameLoop);
+      messageElement.textContent = "Game over! Final score: " + score;
+    }
+
+    function resetGame() {
+      clearInterval(gameLoop);
+
+      playerX = 210;
+      objectX = 230;
+      objectY = 0;
+
+      score = 0;
+      lives = 3;
+      objectSpeed = 3;
+
+      gameRunning = false;
+      messageElement.textContent = "";
+
+      drawGame();
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "ArrowLeft") {
+        movePlayer(-1);
+      }
+
+      if (event.key === "ArrowRight") {
+        movePlayer(1);
+      }
+    });
+
+    document.getElementById("leftBtn").addEventListener("click", function() {
+      movePlayer(-1);
+    });
+
+    document.getElementById("rightBtn").addEventListener("click", function() {
+      movePlayer(1);
+    });
+
+    drawGame();
+  </script>
+</body>
+</html>
