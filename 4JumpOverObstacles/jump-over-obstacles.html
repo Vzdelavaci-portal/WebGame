@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #4 - Jump Over Obstacles</title>
+
+<style>
+body {
+  margin: 0;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.game-area {
+  position: relative;
+  height: 200px;
+  background: linear-gradient(#dbeafe, #eff6ff);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  border: 2px solid #0f172a;
+}
+
+.player {
+  position: absolute;
+  bottom: 0;
+  left: 50px;
+  width: 40px;
+  height: 40px;
+  background: #22c55e;
+  border-radius: 8px;
+}
+
+.obstacle {
+  position: absolute;
+  bottom: 0;
+  right: -40px;
+  width: 30px;
+  height: 40px;
+  background: #dc2626;
+  border-radius: 6px;
+}
+
+.score {
+  font-weight: bold;
+}
+
+.message {
+  height: 24px;
+  font-weight: bold;
+  color: #dc2626;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.jump-btn {
+  background: #2563eb;
+  margin-top: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #4 – Jump Over Obstacles</h1>
+
+  <div class="score">Score: <span id="score">0</span></div>
+
+  <div class="game-area" id="gameArea">
+    <div class="player" id="player"></div>
+    <div class="obstacle" id="obstacle"></div>
+  </div>
+
+  <div class="message" id="message"></div>
+
+  <button class="jump-btn" onclick="jump()">Jump</button>
+  <br>
+  <button onclick="restart()">Restart</button>
+</div>
+
+<script>
+const player = document.getElementById("player");
+const obstacle = document.getElementById("obstacle");
+const scoreEl = document.getElementById("score");
+const message = document.getElementById("message");
+
+let isJumping = false;
+let velocity = 0;
+let gravity = 1.2;
+let positionY = 0;
+
+let obstacleX = 500;
+let speed = 6;
+
+let gameRunning = true;
+let score = 0;
+
+function gameLoop() {
+  if (!gameRunning) return;
+
+  // Gravity
+  velocity -= gravity;
+  positionY += velocity;
+
+  if (positionY < 0) {
+    positionY = 0;
+    velocity = 0;
+    isJumping = false;
+  }
+
+  player.style.bottom = positionY + "px";
+
+  // Move obstacle
+  obstacleX -= speed;
+
+  if (obstacleX < -40) {
+    obstacleX = 520;
+    score++;
+    speed += 0.3;
+  }
+
+  obstacle.style.left = obstacleX + "px";
+
+  // Collision
+  const playerLeft = 50;
+  const playerRight = 90;
+
+  const obstacleLeft = obstacleX;
+  const obstacleRight = obstacleX + 30;
+
+  const isCollision =
+    obstacleRight > playerLeft &&
+    obstacleLeft < playerRight &&
+    positionY < 35;
+
+  if (isCollision) {
+    gameRunning = false;
+    message.textContent = "Game Over!";
+    return;
+  }
+
+  scoreEl.textContent = score;
+
+  requestAnimationFrame(gameLoop);
+}
+
+function jump() {
+  if (isJumping || !gameRunning) return;
+
+  velocity = 18;
+  isJumping = true;
+}
+
+function restart() {
+  positionY = 0;
+  velocity = 0;
+  obstacleX = 500;
+  speed = 6;
+  score = 0;
+  gameRunning = true;
+  message.textContent = "";
+  gameLoop();
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") jump();
+});
+
+gameLoop();
+</script>
+
+</body>
+</html>
