@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WebGame #3 – Stop the Motion</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f1f5f9;
+      font-family: Arial, sans-serif;
+    }
+
+    .game-box {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1e293b;
+    }
+
+    .info {
+      color: #475569;
+      margin-bottom: 15px;
+    }
+
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+      border: 2px solid #0f172a;
+    }
+
+    .target-zone {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 100%;
+      background: rgba(34,197,94,0.3);
+      border-left: 2px dashed #16a34a;
+      border-right: 2px dashed #16a34a;
+    }
+
+    .object {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      width: 40px;
+      height: 40px;
+      background: #2563eb;
+      border-radius: 50%;
+    }
+
+    .score {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      min-height: 24px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .stop {
+      background: #dc2626;
+    }
+
+    .stop:hover {
+      background: #b91c1c;
+    }
+
+    .restart {
+      background: #0f172a;
+    }
+
+    .restart:hover {
+      background: #1e293b;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-box">
+    <h1>WebGame #3 – Stop the Motion</h1>
+    <p class="info">Stop the moving object as close to the center as possible</p>
+
+    <div class="score">Score: <span id="score">0</span></div>
+
+    <div class="game-area">
+      <div class="target-zone"></div>
+      <div id="object" class="object"></div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="buttons">
+      <button class="stop" onclick="stopObject()">STOP</button>
+      <button class="restart" onclick="restartGame()">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    const object = document.getElementById("object");
+    const message = document.getElementById("message");
+    const scoreElement = document.getElementById("score");
+
+    const areaWidth = 480;
+
+    let position = 0;
+    let speed = 4;
+    let direction = 1;
+
+    let running = true;
+    let score = 0;
+
+    function gameLoop() {
+      if (!running) return;
+
+      position += speed * direction;
+
+      if (position <= 0 || position >= areaWidth - 40) {
+        direction *= -1;
+      }
+
+      object.style.left = position + "px";
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function stopObject() {
+      if (!running) return;
+
+      running = false;
+
+      const center = areaWidth / 2 - 20;
+      const distance = Math.abs(position - center);
+
+      let points = Math.max(0, 100 - Math.floor(distance));
+
+      score += points;
+      scoreElement.textContent = score;
+
+      if (points > 80) {
+        message.textContent = "Perfect! 🎯 +" + points;
+        message.style.color = "green";
+      } else if (points > 50) {
+        message.textContent = "Nice! 👍 +" + points;
+        message.style.color = "orange";
+      } else {
+        message.textContent = "Miss 😅 +" + points;
+        message.style.color = "red";
+      }
+    }
+
+    function restartGame() {
+      position = 0;
+      speed += 0.5;
+      direction = 1;
+      running = true;
+      message.textContent = "";
+
+      gameLoop();
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
