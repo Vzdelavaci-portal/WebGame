@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #7 – Click Before It Disappears</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+  color: #1e293b;
+}
+
+.info {
+  color: #475569;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.game-area {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  background: linear-gradient(#dbeafe, #eff6ff);
+  border: 2px solid #0f172a;
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.target {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  background: #ef4444;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  display: none;
+}
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #1e293b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #7 – Click Before It Disappears</h1>
+  <p class="info">Click the target before it disappears!</p>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+    <div>Time: <span id="time">1.5s</span></div>
+  </div>
+
+  <div id="gameArea" class="game-area">
+    <div id="target" class="target"></div>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const gameArea = document.getElementById("gameArea");
+const target = document.getElementById("target");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const timeEl = document.getElementById("time");
+const messageEl = document.getElementById("message");
+
+let score = 0;
+let lives = 3;
+let visibleTime = 1500;
+let gameRunning = false;
+let timeoutId;
+
+function startGame() {
+  clearTimeout(timeoutId);
+
+  score = 0;
+  lives = 3;
+  visibleTime = 1500;
+  gameRunning = true;
+
+  messageEl.textContent = "";
+  messageEl.style.color = "#0f172a";
+
+  updateStats();
+  showTarget();
+}
+
+function showTarget() {
+  if (!gameRunning) return;
+
+  const areaWidth = gameArea.clientWidth;
+  const areaHeight = gameArea.clientHeight;
+  const targetSize = target.offsetWidth || 52;
+
+  const randomX = Math.floor(Math.random() * (areaWidth - targetSize));
+  const randomY = Math.floor(Math.random() * (areaHeight - targetSize));
+
+  target.style.left = randomX + "px";
+  target.style.top = randomY + "px";
+  target.style.display = "block";
+
+  timeoutId = setTimeout(() => {
+    if (!gameRunning) return;
+
+    target.style.display = "none";
+    lives--;
+
+    if (lives <= 0) {
+      endGame();
+      return;
+    }
+
+    updateStats();
+    showTarget();
+  }, visibleTime);
+}
+
+target.addEventListener("click", function(event) {
+  event.stopPropagation();
+
+  if (!gameRunning) return;
+
+  clearTimeout(timeoutId);
+
+  score++;
+  visibleTime = Math.max(450, visibleTime - 80);
+
+  target.style.display = "none";
+
+  messageEl.textContent = "Nice hit! 🎯";
+  messageEl.style.color = "green";
+
+  updateStats();
+
+  setTimeout(showTarget, 250);
+});
+
+gameArea.addEventListener("click", function() {
+  if (!gameRunning) return;
+
+  messageEl.textContent = "Miss! 😅";
+  messageEl.style.color = "red";
+});
+
+function endGame() {
+  gameRunning = false;
+  clearTimeout(timeoutId);
+  target.style.display = "none";
+
+  messageEl.textContent = "Game Over! Final score: " + score;
+  messageEl.style.color = "red";
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+  timeEl.textContent = (visibleTime / 1000).toFixed(1) + "s";
+}
+</script>
+
+</body>
+</html>
