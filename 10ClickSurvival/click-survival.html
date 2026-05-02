@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #10 – Click Survival</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.game-area {
+  position: relative;
+  height: 360px;
+  background: linear-gradient(#dbeafe, #eff6ff);
+  border: 2px solid #0f172a;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.target {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+
+.bad-target {
+  background: #ef4444;
+}
+
+.message {
+  min-height: 24px;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 12px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #10 – Click Survival</h1>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+    <div>Speed: <span id="speed">1.5s</span></div>
+  </div>
+
+  <div id="gameArea" class="game-area"></div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const gameArea = document.getElementById("gameArea");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const speedEl = document.getElementById("speed");
+const messageEl = document.getElementById("message");
+
+let score = 0;
+let lives = 3;
+let spawnTime = 1500;
+let gameRunning = false;
+let spawnTimeout;
+
+function startGame() {
+  clearTimeout(spawnTimeout);
+
+  score = 0;
+  lives = 3;
+  spawnTime = 1500;
+  gameRunning = true;
+
+  gameArea.innerHTML = "";
+  messageEl.textContent = "";
+
+  updateStats();
+  spawnTarget();
+}
+
+function spawnTarget() {
+  if (!gameRunning) return;
+
+  gameArea.innerHTML = "";
+
+  const target = document.createElement("div");
+  target.classList.add("target");
+
+  const isBadTarget = Math.random() < 0.25;
+
+  if (isBadTarget) {
+    target.classList.add("bad-target");
+  }
+
+  const areaWidth = gameArea.clientWidth;
+  const areaHeight = gameArea.clientHeight;
+  const size = 52;
+
+  const x = Math.floor(Math.random() * (areaWidth - size));
+  const y = Math.floor(Math.random() * (areaHeight - size));
+
+  target.style.left = x + "px";
+  target.style.top = y + "px";
+
+  target.addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    if (!gameRunning) return;
+
+    if (isBadTarget) {
+      lives--;
+      messageEl.textContent = "Wrong target! 😅";
+      messageEl.style.color = "red";
+    } else {
+      score++;
+      spawnTime = Math.max(450, spawnTime - 60);
+      messageEl.textContent = "Nice! 🎯";
+      messageEl.style.color = "green";
+    }
+
+    updateStats();
+
+    if (lives <= 0) {
+      endGame();
+      return;
+    }
+
+    clearTimeout(spawnTimeout);
+    spawnTarget();
+  });
+
+  gameArea.appendChild(target);
+
+  spawnTimeout = setTimeout(() => {
+    if (!gameRunning) return;
+
+    if (!isBadTarget) {
+      lives--;
+      messageEl.textContent = "Too slow! ⏱️";
+      messageEl.style.color = "red";
+      updateStats();
+    }
+
+    if (lives <= 0) {
+      endGame();
+      return;
+    }
+
+    spawnTarget();
+  }, spawnTime);
+}
+
+gameArea.addEventListener("click", function() {
+  if (!gameRunning) return;
+
+  lives--;
+  messageEl.textContent = "Miss! 😅";
+  messageEl.style.color = "red";
+  updateStats();
+
+  if (lives <= 0) {
+    endGame();
+  }
+});
+
+function endGame() {
+  gameRunning = false;
+  clearTimeout(spawnTimeout);
+  gameArea.innerHTML = "";
+
+  messageEl.textContent = "Game Over! Final score: " + score;
+  messageEl.style.color = "red";
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+  speedEl.textContent = (spawnTime / 1000).toFixed(1) + "s";
+}
+</script>
+
+</body>
+</html>
