@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebGame</title>
+  <title>WebGame | Mini webové hry</title>
 
   <style>
     * {
@@ -14,135 +14,266 @@
     }
 
     body {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      color: white;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.25), transparent 35%),
+        linear-gradient(135deg, #020617, #0f172a 45%, #1e293b);
       padding: 40px 20px;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
+    .page {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
       text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      margin-bottom: 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 7vw, 4.5rem);
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+
+    .subtitle {
+      max-width: 650px;
+      margin: 0 auto 24px;
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: 0.25s ease;
+      font-weight: 700;
+    }
+
+    .social-link:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.18);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
       width: 100%;
-      max-width: 900px;
     }
 
     .card {
-      background: #1e293b;
-      border-radius: 16px;
-      padding: 25px;
-      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 210px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      padding: 26px;
+      text-align: left;
       text-decoration: none;
       color: white;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transition: 0.3s ease;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -80px auto auto -80px;
+      width: 160px;
+      height: 160px;
+      background: rgba(59, 130, 246, 0.22);
+      border-radius: 50%;
+      transition: 0.3s ease;
     }
 
     .card:hover {
-      transform: translateY(-8px) scale(1.02);
-      background: #334155;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      transform: translateY(-8px);
+      border-color: rgba(96, 165, 250, 0.55);
+      box-shadow: 0 24px 55px rgba(0,0,0,0.45);
+    }
+
+    .card:hover::before {
+      transform: scale(1.5);
     }
 
     .emoji {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
+      position: relative;
+      font-size: 2.8rem;
+      margin-bottom: 18px;
     }
 
     .title {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin-bottom: 8px;
+      position: relative;
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 10px;
     }
 
     .desc {
-      font-size: 0.9rem;
-      color: #cbd5f5;
+      position: relative;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .play {
+      position: absolute;
+      right: 20px;
+      bottom: 18px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #93c5fd;
     }
 
     footer {
-      margin-top: 40px;
-      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 42px;
       color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 28px 14px;
+      }
+
+      .card {
+        min-height: 190px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <h1>🎮 WebGame</h1>
+  <main class="page">
 
-  <div class="grid">
+    <header>
+      <div class="badge">🎮 Mini hry zdarma v prohlížeči</div>
+      <h1>WebGame</h1>
+      <p class="subtitle">
+        Zahraj si jednoduché webové hry zaměřené na postřeh, rychlost, paměť, logiku a přesnost.
+        Vše běží přímo v prohlížeči bez instalace.
+      </p>
 
-    <a href="1MiniMazeGame/mini-maze.html" class="card">
-        <div class="emoji"> 🧭 </div>
+      <div class="links">
+        <a class="social-link" href="https://www.facebook.com/profile.php?id=61573665674273&locale=cs_CZ" target="_blank" rel="noopener noreferrer">
+          📘 Facebook
+        </a>
+
+        <a class="social-link" href="https://vzdelavaci-portal.cz" target="_blank" rel="noopener noreferrer">
+          🌐 Vzdělávací portál
+        </a>
+      </div>
+    </header>
+
+    <section class="grid">
+
+      <a href="1MiniMazeGame/mini-maze.html" class="card">
+        <div class="emoji">🧭</div>
         <div class="title">Najdi cestu!</div>
-        <div class="desc">Většina lidí to nedá 😏</div>
-    </a>
+        <div class="desc">Projdi bludištěm a najdi správnou cestu ven.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="2CatchTheObject/catch-the-object.html" class="card">
-      <div class="emoji">🎯</div>
-      <div class="title">Catch the Object</div>
-      <div class="desc">Chyť co nejvíc objektů a nezmeškej žádný!</div>
-    </a>
+      <a href="2CatchTheObject/catch-the-object.html" class="card">
+        <div class="emoji">🎯</div>
+        <div class="title">Catch the Object</div>
+        <div class="desc">Chyť co nejvíc objektů a nezmeškej žádný.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="3StopTheMotion/stop-the-motion.html" class="card">
-      <div class="emoji">⏱️</div>
-      <div class="title">Stop the Motion</div>
-      <div class="desc">Zastav pohyb ve správný moment!</div>
-    </a>
+      <a href="3StopTheMotion/stop-the-motion.html" class="card">
+        <div class="emoji">⏱️</div>
+        <div class="title">Stop the Motion</div>
+        <div class="desc">Zastav pohyb ve správný moment a otestuj přesnost.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="4JumpOverObstacles/jump-over-obstacles.html" class="card">
-      <div class="emoji">🦘</div>
-      <div class="title">Jump Over Obstacles</div>
-      <div class="desc">Přeskakuj překážky a přežij co nejdéle!</div>
-    </a>
+      <a href="4JumpOverObstacles/jump-over-obstacles.html" class="card">
+        <div class="emoji">🦘</div>
+        <div class="title">Jump Over Obstacles</div>
+        <div class="desc">Přeskakuj překážky a přežij co nejdéle.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="5ReactionTimer/reaction-timer.html" class="card">
-      <div class="emoji">⚡</div>
-      <div class="title">Reaction Timer</div>
-      <div class="desc">Otestuj svou reakční rychlost</div>
-    </a>
+      <a href="5ReactionTimer/reaction-timer.html" class="card">
+        <div class="emoji">⚡</div>
+        <div class="title">Reaction Timer</div>
+        <div class="desc">Otestuj, jak rychle dokážeš zareagovat.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="6SpotThePixel/spot-the-pixel.html" class="card">
-      <div class="emoji">🔍</div>
-      <div class="title">Spot the Pixel</div>
-      <div class="desc">Najdi odlišný pixel co nejrychleji</div>
-    </a>
+      <a href="6SpotThePixel/spot-the-pixel.html" class="card">
+        <div class="emoji">🔍</div>
+        <div class="title">Spot the Pixel</div>
+        <div class="desc">Najdi odlišný pixel co nejrychleji.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="7ClickBeferoItDisappears/click-before-it-disappears.html" class="card">
-      <div class="emoji">🖱️</div>
-      <div class="title">Click Before It Disappears</div>
-      <div class="desc">Klikni dřív, než objekt zmizí</div>
-    </a>
+      <a href="7ClickBeforeItDisappears/click-before-it-disappears.html" class="card">
+        <div class="emoji">🖱️</div>
+        <div class="title">Click Before It Disappears</div>
+        <div class="desc">Klikni dřív, než objekt zmizí z obrazovky.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="8MathChallenge/math-challenge.html" class="card">
-      <div class="emoji">➗</div>
-      <div class="title">Math Challenge</div>
-      <div class="desc">Vyřeš příklady co nejrychleji</div>
-    </a>
+      <a href="8MathChallenge/math-challenge.html" class="card">
+        <div class="emoji">➗</div>
+        <div class="title">Math Challenge</div>
+        <div class="desc">Vyřeš příklady co nejrychleji a bez chyb.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-    <a href="9ColorMemory/color-memory.html" class="card">
-      <div class="emoji">🎨</div>
-      <div class="title">Color Memory</div>
-      <div class="desc">Zapamatuj si pořadí barev</div>
-    </a>
+      <a href="9ColorMemory/color-memory.html" class="card">
+        <div class="emoji">🎨</div>
+        <div class="title">Color Memory</div>
+        <div class="desc">Zapamatuj si pořadí barev a zopakuj sekvenci.</div>
+        <span class="play">Hrát →</span>
+      </a>
 
-  </div>
+    </section>
 
-  <footer>
-    🚀 Vytvořeno pro WebGame sérii
-  </footer>
+    <footer>
+      🚀 Vytvořeno pro WebGame sérii | Vzdělávací portál
+    </footer>
+
+  </main>
 
 </body>
 </html>
