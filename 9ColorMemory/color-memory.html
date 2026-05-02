@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #9 – Color Memory</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f1f5f9;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.color-btn {
+  height: 100px;
+  border-radius: 12px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: 0.2s;
+}
+
+.color-btn.active {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.red { background: #ef4444; }
+.green { background: #22c55e; }
+.blue { background: #3b82f6; }
+.yellow { background: #facc15; }
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #9 – Color Memory</h1>
+
+  <div class="grid">
+    <div class="color-btn red" data-color="0"></div>
+    <div class="color-btn green" data-color="1"></div>
+    <div class="color-btn blue" data-color="2"></div>
+    <div class="color-btn yellow" data-color="3"></div>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const buttons = document.querySelectorAll(".color-btn");
+const message = document.getElementById("message");
+
+let sequence = [];
+let playerSequence = [];
+let level = 0;
+let isPlaying = false;
+
+function startGame() {
+  sequence = [];
+  playerSequence = [];
+  level = 0;
+  message.textContent = "";
+  nextRound();
+}
+
+function nextRound() {
+  playerSequence = [];
+  level++;
+
+  sequence.push(Math.floor(Math.random() * 4));
+  message.textContent = "Level " + level;
+
+  playSequence();
+}
+
+function playSequence() {
+  isPlaying = false;
+
+  sequence.forEach((color, index) => {
+    setTimeout(() => {
+      flashButton(color);
+    }, index * 600);
+  });
+
+  setTimeout(() => {
+    isPlaying = true;
+  }, sequence.length * 600);
+}
+
+function flashButton(index) {
+  const btn = buttons[index];
+  btn.classList.add("active");
+
+  setTimeout(() => {
+    btn.classList.remove("active");
+  }, 300);
+}
+
+buttons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (!isPlaying) return;
+
+    const index = Number(btn.dataset.color);
+    playerSequence.push(index);
+
+    flashButton(index);
+
+    checkInput();
+  });
+});
+
+function checkInput() {
+  const current = playerSequence.length - 1;
+
+  if (playerSequence[current] !== sequence[current]) {
+    message.textContent = "Game Over! 😅 Level: " + level;
+    isPlaying = false;
+    return;
+  }
+
+  if (playerSequence.length === sequence.length) {
+    setTimeout(nextRound, 800);
+  }
+}
+</script>
+
+</body>
+</html>
