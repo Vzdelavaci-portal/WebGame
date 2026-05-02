@@ -2,16 +2,105 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebGame</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      text-decoration: none;
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      background: #334155;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+
+    .emoji {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .desc {
+      font-size: 0.9rem;
+      color: #cbd5f5;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>🎮 WebGame</h1>
+  <h1>🎮 WebGame</h1>
 
-<ul>
-  <li><a href="1MiniMazeGame/">Klikni než zmizí</a></li>
-  <li><a href="barevna-pamet/">Barevná paměť</a></li>
-</ul>
+  <div class="grid">
+
+    <a href="1MiniMazeGame/" class="card">
+      <div class="emoji">🖱️</div>
+      <div class="title">Klikni než zmizí</div>
+      <div class="desc">Otestuj rychlost reakce</div>
+    </a>
+
+    <a href="barevna-pamet/" class="card">
+      <div class="emoji">🧠</div>
+      <div class="title">Barevná paměť</div>
+      <div class="desc">Zapamatuj si správné pořadí</div>
+    </a>
+
+  </div>
+
+  <footer>
+    🚀 Vytvořeno pro WebGame sérii
+  </footer>
 
 </body>
 </html>
