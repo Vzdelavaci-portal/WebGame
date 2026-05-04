@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #12 – Color Hunt</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.word {
+  font-size: 42px;
+  font-weight: bold;
+  margin: 25px 0;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.color-btn {
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.red { background: #ef4444; }
+.green { background: #22c55e; }
+.blue { background: #3b82f6; }
+.yellow { background: #facc15; color: black; }
+
+.message {
+  min-height: 24px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+button.start {
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #12 – Color Hunt</h1>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Time: <span id="time">10</span>s</div>
+  </div>
+
+  <div id="word" class="word">READY</div>
+
+  <div class="buttons">
+    <button class="color-btn red" onclick="selectColor('RED')">RED</button>
+    <button class="color-btn green" onclick="selectColor('GREEN')">GREEN</button>
+    <button class="color-btn blue" onclick="selectColor('BLUE')">BLUE</button>
+    <button class="color-btn yellow" onclick="selectColor('YELLOW')">YELLOW</button>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <button class="start" onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const wordEl = document.getElementById("word");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const messageEl = document.getElementById("message");
+
+const colors = ["RED", "GREEN", "BLUE", "YELLOW"];
+
+let currentCorrect = "";
+let score = 0;
+let time = 10;
+let timer;
+let gameRunning = false;
+
+function startGame() {
+  clearInterval(timer);
+
+  score = 0;
+  time = 10;
+  gameRunning = true;
+
+  scoreEl.textContent = score;
+  timeEl.textContent = time;
+  messageEl.textContent = "";
+
+  nextRound();
+
+  timer = setInterval(() => {
+    time--;
+    timeEl.textContent = time;
+
+    if (time <= 0) {
+      endGame();
+    }
+  }, 1000);
+}
+
+function nextRound() {
+  const textColor = colors[Math.floor(Math.random() * colors.length)];
+  const displayColor = colors[Math.floor(Math.random() * colors.length)];
+
+  currentCorrect = textColor;
+
+  wordEl.textContent = textColor;
+  wordEl.style.color = getColor(displayColor);
+}
+
+function selectColor(choice) {
+  if (!gameRunning) return;
+
+  if (choice === currentCorrect) {
+    score++;
+    messageEl.textContent = "Correct! ✅";
+    messageEl.style.color = "green";
+  } else {
+    messageEl.textContent = "Wrong 😅";
+    messageEl.style.color = "red";
+  }
+
+  scoreEl.textContent = score;
+  nextRound();
+}
+
+function endGame() {
+  gameRunning = false;
+  clearInterval(timer);
+  messageEl.textContent = "Game Over! Score: " + score;
+  messageEl.style.color = "red";
+}
+
+function getColor(name) {
+  if (name === "RED") return "#ef4444";
+  if (name === "GREEN") return "#22c55e";
+  if (name === "BLUE") return "#3b82f6";
+  if (name === "YELLOW") return "#facc15";
+}
+</script>
+
+</body>
+</html>
