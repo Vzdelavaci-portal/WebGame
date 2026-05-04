@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #11 – Mini Puzzle</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.puzzle {
+  display: grid;
+  grid-template-columns: repeat(3, 90px);
+  grid-template-rows: repeat(3, 90px);
+  gap: 6px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.tile {
+  width: 90px;
+  height: 90px;
+  background: #2563eb;
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #11 – Mini Puzzle</h1>
+
+  <div class="stats">Moves: <span id="moves">0</span></div>
+
+  <div id="puzzle" class="puzzle"></div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="shufflePuzzle()">Shuffle / Restart</button>
+</div>
+
+<script>
+const puzzleEl = document.getElementById("puzzle");
+const movesEl = document.getElementById("moves");
+const messageEl = document.getElementById("message");
+
+let tiles = [1, 2, 3, 4, 5, 6, 7, 8, null];
+let moves = 0;
+
+function drawPuzzle() {
+  puzzleEl.innerHTML = "";
+
+  tiles.forEach((tile, index) => {
+    const tileEl = document.createElement("div");
+    tileEl.classList.add("tile");
+
+    if (tile === null) {
+      tileEl.classList.add("empty");
+      tileEl.textContent = "";
+    } else {
+      tileEl.textContent = tile;
+      tileEl.addEventListener("click", () => moveTile(index));
+    }
+
+    puzzleEl.appendChild(tileEl);
+  });
+
+  movesEl.textContent = moves;
+}
+
+function moveTile(index) {
+  const emptyIndex = tiles.indexOf(null);
+
+  const canMove =
+    index === emptyIndex - 1 && emptyIndex % 3 !== 0 ||
+    index === emptyIndex + 1 && index % 3 !== 0 ||
+    index === emptyIndex - 3 ||
+    index === emptyIndex + 3;
+
+  if (!canMove) return;
+
+  [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+  moves++;
+
+  drawPuzzle();
+  checkWin();
+}
+
+function shufflePuzzle() {
+  tiles = [1, 2, 3, 4, 5, 6, 7, 8, null];
+  moves = 0;
+  messageEl.textContent = "";
+
+  for (let i = 0; i < 80; i++) {
+    const emptyIndex = tiles.indexOf(null);
+    const possibleMoves = [];
+
+    [emptyIndex - 1, emptyIndex + 1, emptyIndex - 3, emptyIndex + 3].forEach(index => {
+      if (
+        index >= 0 &&
+        index < 9 &&
+        (
+          index === emptyIndex - 3 ||
+          index === emptyIndex + 3 ||
+          (Math.floor(index / 3) === Math.floor(emptyIndex / 3))
+        )
+      ) {
+        possibleMoves.push(index);
+      }
+    });
+
+    const randomIndex = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    [tiles[randomIndex], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[randomIndex]];
+  }
+
+  drawPuzzle();
+}
+
+function checkWin() {
+  const winningTiles = [1, 2, 3, 4, 5, 6, 7, 8, null];
+
+  const isWin = tiles.every((tile, index) => tile === winningTiles[index]);
+
+  if (isWin) {
+    messageEl.textContent = "You solved it! 🎉";
+    messageEl.style.color = "green";
+  }
+}
+
+shufflePuzzle();
+</script>
+
+</body>
+</html>
