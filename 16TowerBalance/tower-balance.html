@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #16 – Tower Balance</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.game-area {
+  position: relative;
+  height: 400px;
+  background: #e0f2fe;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.block {
+  position: absolute;
+  height: 20px;
+  background: #2563eb;
+}
+
+.moving {
+  background: #22c55e;
+}
+
+.stats {
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.message {
+  height: 24px;
+  color: red;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #16 – Tower Balance</h1>
+
+  <div class="stats">Score: <span id="score">0</span></div>
+
+  <div id="gameArea" class="game-area"></div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const gameArea = document.getElementById("gameArea");
+const scoreEl = document.getElementById("score");
+const messageEl = document.getElementById("message");
+
+let blocks = [];
+let currentBlock;
+let direction = 1;
+let speed = 2;
+let gameRunning = false;
+let score = 0;
+let animation;
+
+function startGame() {
+  cancelAnimationFrame(animation);
+
+  gameArea.innerHTML = "";
+  blocks = [];
+  score = 0;
+  gameRunning = true;
+  messageEl.textContent = "";
+
+  scoreEl.textContent = score;
+
+  createBase();
+  createMovingBlock();
+  gameLoop();
+}
+
+function createBase() {
+  const base = document.createElement("div");
+  base.className = "block";
+  base.style.width = "200px";
+  base.style.left = "100px";
+  base.style.bottom = "0px";
+
+  gameArea.appendChild(base);
+  blocks.push({ el: base, left: 100, width: 200, bottom: 0 });
+}
+
+function createMovingBlock() {
+  const last = blocks[blocks.length - 1];
+
+  const block = document.createElement("div");
+  block.className = "block moving";
+  block.style.width = last.width + "px";
+  block.style.bottom = (last.bottom + 20) + "px";
+
+  gameArea.appendChild(block);
+
+  currentBlock = {
+    el: block,
+    left: 0,
+    width: last.width,
+    bottom: last.bottom + 20
+  };
+}
+
+function gameLoop() {
+  if (!gameRunning) return;
+
+  currentBlock.left += speed * direction;
+
+  if (currentBlock.left <= 0 || currentBlock.left + currentBlock.width >= gameArea.clientWidth) {
+    direction *= -1;
+  }
+
+  currentBlock.el.style.left = currentBlock.left + "px";
+
+  animation = requestAnimationFrame(gameLoop);
+}
+
+function dropBlock() {
+  if (!gameRunning) return;
+
+  const last = blocks[blocks.length - 1];
+
+  const overlap =
+    Math.min(currentBlock.left + currentBlock.width, last.left + last.width) -
+    Math.max(currentBlock.left, last.left);
+
+  if (overlap <= 0) {
+    gameOver();
+    return;
+  }
+
+  currentBlock.width = overlap;
+  currentBlock.left = Math.max(currentBlock.left, last.left);
+
+  currentBlock.el.style.width = overlap + "px";
+  currentBlock.el.style.left = currentBlock.left + "px";
+  currentBlock.el.classList.remove("moving");
+
+  blocks.push(currentBlock);
+
+  score++;
+  scoreEl.textContent = score;
+
+  speed += 0.2;
+
+  createMovingBlock();
+}
+
+function gameOver() {
+  gameRunning = false;
+  messageEl.textContent = "Game Over!";
+}
+
+document.addEventListener("click", dropBlock);
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") dropBlock();
+});
+</script>
+
+</body>
+</html>
