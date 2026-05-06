@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #15 – Color Swap Trap</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.info {
+  color: #475569;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.target-text {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 120px);
+  gap: 14px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.color-card {
+  width: 120px;
+  height: 90px;
+  border-radius: 14px;
+  cursor: pointer;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  transition: transform 0.15s;
+}
+
+.color-card:hover {
+  transform: scale(1.05);
+}
+
+.red { background: #ef4444; }
+.green { background: #22c55e; }
+.blue { background: #3b82f6; }
+.yellow { background: #facc15; color: #111827; }
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+}
+
+button.start {
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button.start:hover {
+  background: #1e293b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #15 – Color Swap Trap</h1>
+
+  <p class="info">
+    Click the correct color before the cards swap!
+  </p>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+    <div>Time: <span id="time">3.0</span>s</div>
+  </div>
+
+  <div id="targetText" class="target-text">Press Start</div>
+
+  <div id="grid" class="grid"></div>
+
+  <div id="message" class="message"></div>
+
+  <button class="start" onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const grid = document.getElementById("grid");
+const targetText = document.getElementById("targetText");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const timeEl = document.getElementById("time");
+const messageEl = document.getElementById("message");
+
+const colors = [
+  { name: "RED", className: "red" },
+  { name: "GREEN", className: "green" },
+  { name: "BLUE", className: "blue" },
+  { name: "YELLOW", className: "yellow" }
+];
+
+let score = 0;
+let lives = 3;
+let roundTime = 3000;
+let currentTarget = "";
+let gameRunning = false;
+let countdown;
+let swapTimer;
+let timeLeft = 0;
+
+function startGame() {
+  clearInterval(countdown);
+  clearInterval(swapTimer);
+
+  score = 0;
+  lives = 3;
+  roundTime = 3000;
+  gameRunning = true;
+
+  messageEl.textContent = "";
+  updateStats();
+
+  nextRound();
+}
+
+function nextRound() {
+  if (!gameRunning) return;
+
+  clearInterval(countdown);
+  clearInterval(swapTimer);
+
+  timeLeft = roundTime;
+  currentTarget = colors[Math.floor(Math.random() * colors.length)].name;
+
+  targetText.textContent = "Click: " + currentTarget;
+  messageEl.textContent = "";
+
+  renderCards();
+  startCountdown();
+  startSwapping();
+}
+
+function renderCards() {
+  grid.innerHTML = "";
+
+  const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
+
+  shuffledColors.forEach(color => {
+    const card = document.createElement("button");
+    card.classList.add("color-card", color.className);
+    card.textContent = color.name;
+
+    card.addEventListener("click", () => selectColor(color.name));
+
+    grid.appendChild(card);
+  });
+}
+
+function startCountdown() {
+  timeEl.textContent = (timeLeft / 1000).toFixed(1);
+
+  countdown = setInterval(() => {
+    timeLeft -= 100;
+
+    timeEl.textContent = (timeLeft / 1000).toFixed(1);
+
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      clearInterval(swapTimer);
+
+      lives--;
+      messageEl.textContent = "Too slow! ⏱️";
+      messageEl.style.color = "red";
+      updateStats();
+
+      if (lives <= 0) {
+        endGame();
+        return;
+      }
+
+      setTimeout(nextRound, 700);
+    }
+  }, 100);
+}
+
+function startSwapping() {
+  swapTimer = setInterval(() => {
+    renderCards();
+  }, Math.max(450, roundTime / 2));
+}
+
+function selectColor(colorName) {
+  if (!gameRunning) return;
+
+  clearInterval(countdown);
+  clearInterval(swapTimer);
+
+  if (colorName === currentTarget) {
+    score++;
+    roundTime = Math.max(1200, roundTime - 150);
+
+    messageEl.textContent = "Correct! ✅";
+    messageEl.style.color = "green";
+  } else {
+    lives--;
+
+    messageEl.textContent = "Wrong color! 😅";
+    messageEl.style.color = "red";
+  }
+
+  updateStats();
+
+  if (lives <= 0) {
+    endGame();
+    return;
+  }
+
+  setTimeout(nextRound, 700);
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+  timeEl.textContent = (roundTime / 1000).toFixed(1);
+}
+
+function endGame() {
+  gameRunning = false;
+  clearInterval(countdown);
+  clearInterval(swapTimer);
+
+  grid.innerHTML = "";
+  targetText.textContent = "Game Over!";
+  messageEl.textContent = "Final score: " + score;
+  messageEl.style.color = "red";
+}
+</script>
+
+</body>
+</html>
