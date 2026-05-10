@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #18 – Shape Creator</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.app-box {
+  width: 100%;
+  max-width: 620px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.info {
+  color: #475569;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.toolbar button,
+.toolbar select {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #0f172a;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.toolbar select {
+  background: #2563eb;
+}
+
+.canvas {
+  position: relative;
+  height: 380px;
+  background: linear-gradient(#dbeafe, #eff6ff);
+  border: 2px solid #0f172a;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.shape {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.square {
+  border-radius: 8px;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  background: transparent !important;
+  border-left: 24px solid transparent;
+  border-right: 24px solid transparent;
+  border-bottom: 46px solid;
+}
+
+.star {
+  font-size: 46px;
+  line-height: 46px;
+  background: transparent !important;
+}
+
+.message {
+  min-height: 24px;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+.counter {
+  margin-top: 10px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-box">
+  <h1>WebGame #18 – Shape Creator</h1>
+  <p class="info">Choose a shape, choose a color, and click on the canvas.</p>
+
+  <div class="toolbar">
+    <select id="shapeSelect">
+      <option value="circle">Circle</option>
+      <option value="square">Square</option>
+      <option value="triangle">Triangle</option>
+      <option value="star">Star</option>
+    </select>
+
+    <select id="colorSelect">
+      <option value="#2563eb">Blue</option>
+      <option value="#ef4444">Red</option>
+      <option value="#22c55e">Green</option>
+      <option value="#facc15">Yellow</option>
+      <option value="#a855f7">Purple</option>
+    </select>
+
+    <button onclick="toggleDeleteMode()">Delete Mode: <span id="deleteState">OFF</span></button>
+    <button onclick="clearCanvas()">Clear</button>
+  </div>
+
+  <div id="canvas" class="canvas"></div>
+
+  <div class="counter">Shapes: <span id="shapeCount">0</span></div>
+  <div id="message" class="message"></div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const shapeSelect = document.getElementById("shapeSelect");
+const colorSelect = document.getElementById("colorSelect");
+const shapeCountEl = document.getElementById("shapeCount");
+const messageEl = document.getElementById("message");
+const deleteStateEl = document.getElementById("deleteState");
+
+let deleteMode = false;
+let shapeCount = 0;
+
+canvas.addEventListener("click", function(event) {
+  if (event.target !== canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  createShape(x, y);
+});
+
+function createShape(x, y) {
+  const shapeType = shapeSelect.value;
+  const color = colorSelect.value;
+
+  const shape = document.createElement("div");
+  shape.classList.add("shape", shapeType);
+
+  shape.style.left = x + "px";
+  shape.style.top = y + "px";
+
+  if (shapeType === "triangle") {
+    shape.style.borderBottomColor = color;
+  } else if (shapeType === "star") {
+    shape.textContent = "★";
+    shape.style.color = color;
+  } else {
+    shape.style.background = color;
+  }
+
+  shape.addEventListener("click", function(event) {
+    event.stopPropagation();
+
+    if (deleteMode) {
+      shape.remove();
+      shapeCount--;
+      updateCounter();
+      messageEl.textContent = "Shape deleted 🗑️";
+      messageEl.style.color = "red";
+    }
+  });
+
+  canvas.appendChild(shape);
+  shapeCount++;
+  updateCounter();
+
+  messageEl.textContent = "Shape added ✅";
+  messageEl.style.color = "green";
+}
+
+function toggleDeleteMode() {
+  deleteMode = !deleteMode;
+  deleteStateEl.textContent = deleteMode ? "ON" : "OFF";
+
+  messageEl.textContent = deleteMode
+    ? "Click a shape to delete it"
+    : "Click on canvas to create shapes";
+
+  messageEl.style.color = deleteMode ? "red" : "green";
+}
+
+function clearCanvas() {
+  canvas.innerHTML = "";
+  shapeCount = 0;
+  updateCounter();
+
+  messageEl.textContent = "Canvas cleared";
+  messageEl.style.color = "#0f172a";
+}
+
+function updateCounter() {
+  shapeCountEl.textContent = shapeCount;
+}
+</script>
+
+</body>
+</html>
