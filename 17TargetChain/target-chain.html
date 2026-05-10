@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #17 – Target Chain</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.game-area {
+  position: relative;
+  height: 420px;
+  background: linear-gradient(#dbeafe, #eff6ff);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #0f172a;
+}
+
+.target {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #ef4444;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  animation: pop 0.2s ease;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #17 – Target Chain</h1>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Combo: <span id="combo">0</span>🔥</div>
+    <div>Lives: <span id="lives">3</span></div>
+  </div>
+
+  <div id="gameArea" class="game-area"></div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const gameArea = document.getElementById("gameArea");
+const scoreEl = document.getElementById("score");
+const comboEl = document.getElementById("combo");
+const livesEl = document.getElementById("lives");
+const messageEl = document.getElementById("message");
+
+let score = 0;
+let combo = 0;
+let lives = 3;
+let gameRunning = false;
+let spawnSpeed = 1200;
+let spawnInterval;
+
+function startGame() {
+  clearInterval(spawnInterval);
+
+  gameArea.innerHTML = "";
+
+  score = 0;
+  combo = 0;
+  lives = 3;
+  spawnSpeed = 1200;
+  gameRunning = true;
+
+  messageEl.textContent = "";
+
+  updateStats();
+
+  spawnTarget();
+
+  spawnInterval = setInterval(() => {
+    spawnTarget();
+  }, spawnSpeed);
+}
+
+function spawnTarget() {
+  if (!gameRunning) return;
+
+  const target = document.createElement("div");
+  target.classList.add("target");
+
+  const size = 58;
+
+  const x = Math.random() * (gameArea.clientWidth - size);
+  const y = Math.random() * (gameArea.clientHeight - size);
+
+  target.style.left = x + "px";
+  target.style.top = y + "px";
+
+  gameArea.appendChild(target);
+
+  let clicked = false;
+
+  target.addEventListener("click", () => {
+    if (clicked || !gameRunning) return;
+
+    clicked = true;
+
+    combo++;
+    score += combo;
+
+    updateStats();
+
+    messageEl.textContent = "Combo x" + combo + " 🔥";
+    messageEl.style.color = "green";
+
+    target.remove();
+
+    spawnSpeed = Math.max(400, spawnSpeed - 20);
+
+    clearInterval(spawnInterval);
+
+    spawnInterval = setInterval(() => {
+      spawnTarget();
+    }, spawnSpeed);
+  });
+
+  setTimeout(() => {
+    if (!clicked && gameRunning) {
+      target.remove();
+
+      combo = 0;
+      lives--;
+
+      updateStats();
+
+      messageEl.textContent = "Missed target 😅";
+      messageEl.style.color = "red";
+
+      if (lives <= 0) {
+        endGame();
+      }
+    }
+  }, 1000);
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  comboEl.textContent = combo;
+  livesEl.textContent = lives;
+}
+
+function endGame() {
+  gameRunning = false;
+
+  clearInterval(spawnInterval);
+
+  messageEl.textContent = "Game Over! Final score: " + score;
+  messageEl.style.color = "red";
+}
+</script>
+
+</body>
+</html>
