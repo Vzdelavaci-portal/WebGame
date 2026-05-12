@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #21 – Pixel Builder</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.app-box {
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.info {
+  color: #475569;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.color-btn,
+.tool-btn {
+  width: 42px;
+  height: 42px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.tool-btn {
+  width: auto;
+  padding: 0 14px;
+  background: #0f172a;
+  color: white;
+  font-weight: bold;
+}
+
+.active {
+  border-color: #0f172a;
+  transform: scale(1.08);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(16, 24px);
+  grid-template-rows: repeat(16, 24px);
+  gap: 2px;
+  justify-content: center;
+  margin: 20px auto;
+  background: #cbd5e1;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+.pixel {
+  width: 24px;
+  height: 24px;
+  background: white;
+  cursor: pointer;
+}
+
+.pixel:hover {
+  outline: 2px solid #0f172a;
+}
+
+.counter {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.message {
+  min-height: 24px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: repeat(16, 18px);
+    grid-template-rows: repeat(16, 18px);
+  }
+
+  .pixel {
+    width: 18px;
+    height: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-box">
+  <h1>WebGame #21 – Pixel Builder</h1>
+  <p class="info">Choose a color and create your own pixel art.</p>
+
+  <div class="toolbar">
+    <button class="color-btn active" style="background:#0f172a" onclick="selectColor('#0f172a', this)"></button>
+    <button class="color-btn" style="background:#ef4444" onclick="selectColor('#ef4444', this)"></button>
+    <button class="color-btn" style="background:#22c55e" onclick="selectColor('#22c55e', this)"></button>
+    <button class="color-btn" style="background:#3b82f6" onclick="selectColor('#3b82f6', this)"></button>
+    <button class="color-btn" style="background:#facc15" onclick="selectColor('#facc15', this)"></button>
+    <button class="color-btn" style="background:#a855f7" onclick="selectColor('#a855f7', this)"></button>
+
+    <button id="eraserBtn" class="tool-btn" onclick="selectEraser()">Eraser</button>
+    <button class="tool-btn" onclick="clearGrid()">Clear</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+  <div class="counter">Colored pixels: <span id="count">0</span></div>
+  <div id="message" class="message"></div>
+</div>
+
+<script>
+const grid = document.getElementById("grid");
+const countEl = document.getElementById("count");
+const messageEl = document.getElementById("message");
+const eraserBtn = document.getElementById("eraserBtn");
+
+let selectedColor = "#0f172a";
+let isEraser = false;
+let isMouseDown = false;
+
+function createGrid() {
+  grid.innerHTML = "";
+
+  for (let i = 0; i < 256; i++) {
+    const pixel = document.createElement("div");
+    pixel.classList.add("pixel");
+    pixel.dataset.filled = "false";
+
+    pixel.addEventListener("mousedown", () => paintPixel(pixel));
+    pixel.addEventListener("mouseover", () => {
+      if (isMouseDown) paintPixel(pixel);
+    });
+
+    grid.appendChild(pixel);
+  }
+
+  updateCount();
+}
+
+function selectColor(color, button) {
+  selectedColor = color;
+  isEraser = false;
+
+  document.querySelectorAll(".color-btn, .tool-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  button.classList.add("active");
+
+  messageEl.textContent = "Color selected";
+  messageEl.style.color = "green";
+}
+
+function selectEraser() {
+  isEraser = true;
+
+  document.querySelectorAll(".color-btn, .tool-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  eraserBtn.classList.add("active");
+
+  messageEl.textContent = "Eraser selected";
+  messageEl.style.color = "red";
+}
+
+function paintPixel(pixel) {
+  if (isEraser) {
+    pixel.style.background = "white";
+    pixel.dataset.filled = "false";
+  } else {
+    pixel.style.background = selectedColor;
+    pixel.dataset.filled = "true";
+  }
+
+  updateCount();
+}
+
+function clearGrid() {
+  document.querySelectorAll(".pixel").forEach(pixel => {
+    pixel.style.background = "white";
+    pixel.dataset.filled = "false";
+  });
+
+  updateCount();
+
+  messageEl.textContent = "Canvas cleared";
+  messageEl.style.color = "#0f172a";
+}
+
+function updateCount() {
+  const filledPixels = document.querySelectorAll('.pixel[data-filled="true"]').length;
+  countEl.textContent = filledPixels;
+}
+
+document.addEventListener("mousedown", () => {
+  isMouseDown = true;
+});
+
+document.addEventListener("mouseup", () => {
+  isMouseDown = false;
+});
+
+createGrid();
+</script>
+
+</body>
+</html>
