@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #20 – Speed Logic</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.question {
+  font-size: 42px;
+  font-weight: bold;
+  margin: 40px 0;
+  color: #0f172a;
+}
+
+.timer-bar {
+  width: 100%;
+  height: 14px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.timer-fill {
+  height: 100%;
+  width: 100%;
+  background: #22c55e;
+  transition: width 0.1s linear;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.buttons button {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+}
+
+.true-btn {
+  background: #22c55e;
+}
+
+.false-btn {
+  background: #ef4444;
+}
+
+.message {
+  min-height: 24px;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.restart {
+  margin-top: 14px;
+  padding: 10px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #20 – Speed Logic</h1>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+  </div>
+
+  <div class="timer-bar">
+    <div id="timerFill" class="timer-fill"></div>
+  </div>
+
+  <div id="question" class="question">Press Start</div>
+
+  <div class="buttons">
+    <button class="true-btn" onclick="answer(true)">TRUE</button>
+    <button class="false-btn" onclick="answer(false)">FALSE</button>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <button class="restart" onclick="startGame()">
+    Start / Restart
+  </button>
+</div>
+
+<script>
+const questionEl = document.getElementById("question");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const messageEl = document.getElementById("message");
+const timerFill = document.getElementById("timerFill");
+
+let score = 0;
+let lives = 3;
+let correctAnswer = true;
+let gameRunning = false;
+
+let roundTime = 3000;
+let timeLeft = 3000;
+
+let timerInterval;
+
+function startGame() {
+  clearInterval(timerInterval);
+
+  score = 0;
+  lives = 3;
+  roundTime = 3000;
+  gameRunning = true;
+
+  updateStats();
+
+  messageEl.textContent = "";
+
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (!gameRunning) return;
+
+  clearInterval(timerInterval);
+
+  const a = randomNumber();
+  const b = randomNumber();
+
+  const operators = ["+", "-", ">", "<"];
+  const operator =
+    operators[Math.floor(Math.random() * operators.length)];
+
+  let displayedResult;
+  let realResult;
+
+  if (operator === "+") {
+    realResult = a + b;
+  }
+
+  if (operator === "-") {
+    realResult = a - b;
+  }
+
+  if (operator === ">") {
+    realResult = a > b;
+  }
+
+  if (operator === "<") {
+    realResult = a < b;
+  }
+
+  const isCorrect =
+    Math.random() > 0.5;
+
+  if (
+    operator === "+" ||
+    operator === "-"
+  ) {
+    displayedResult = isCorrect
+      ? realResult
+      : realResult + randomOffset();
+
+    questionEl.textContent =
+      `${a} ${operator} ${b} = ${displayedResult}`;
+  }
+
+  else {
+    displayedResult = realResult;
+
+    questionEl.textContent =
+      `${a} ${operator} ${b}`;
+  }
+
+  correctAnswer = isCorrect;
+
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = roundTime;
+
+  updateTimerBar();
+
+  timerInterval = setInterval(() => {
+    timeLeft -= 50;
+
+    updateTimerBar();
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+
+      loseLife();
+
+      messageEl.textContent = "Too slow ⏱️";
+      messageEl.style.color = "red";
+
+      setTimeout(nextQuestion, 700);
+    }
+  }, 50);
+}
+
+function updateTimerBar() {
+  timerFill.style.width =
+    (timeLeft / roundTime) * 100 + "%";
+
+  if (timeLeft < roundTime * 0.4) {
+    timerFill.style.background = "#ef4444";
+  } else {
+    timerFill.style.background = "#22c55e";
+  }
+}
+
+function answer(choice) {
+  if (!gameRunning) return;
+
+  clearInterval(timerInterval);
+
+  if (choice === correctAnswer) {
+    score++;
+
+    roundTime = Math.max(1000, roundTime - 80);
+
+    messageEl.textContent = "Correct ✅";
+    messageEl.style.color = "green";
+  }
+
+  else {
+    loseLife();
+
+    messageEl.textContent = "Wrong 😅";
+    messageEl.style.color = "red";
+  }
+
+  updateStats();
+
+  if (lives <= 0) {
+    gameOver();
+    return;
+  }
+
+  setTimeout(nextQuestion, 500);
+}
+
+function loseLife() {
+  lives--;
+  updateStats();
+}
+
+function gameOver() {
+  gameRunning = false;
+
+  clearInterval(timerInterval);
+
+  questionEl.textContent = "Game Over!";
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+}
+
+function randomNumber() {
+  return Math.floor(Math.random() * 10) + 1;
+}
+
+function randomOffset() {
+  let offsets = [-3, -2, -1, 1, 2, 3];
+  return offsets[Math.floor(Math.random() * offsets.length)];
+}
+</script>
+
+</body>
+</html>
