@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #22 – Find the Pattern</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.pattern {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+
+.pattern-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.question-mark {
+  background: #facc15;
+  color: #111827;
+}
+
+.answers {
+  display: grid;
+  grid-template-columns: repeat(2, 120px);
+  gap: 12px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.answer-btn {
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.answer-btn:hover {
+  transform: scale(1.05);
+}
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+}
+
+button.restart {
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #22 – Find the Pattern</h1>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+  </div>
+
+  <div id="pattern" class="pattern"></div>
+
+  <div id="answers" class="answers"></div>
+
+  <div id="message" class="message"></div>
+
+  <button class="restart" onclick="startGame()">
+    Start / Restart
+  </button>
+</div>
+
+<script>
+const patternEl = document.getElementById("pattern");
+const answersEl = document.getElementById("answers");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const messageEl = document.getElementById("message");
+
+let score = 0;
+let lives = 3;
+let correctAnswer = 0;
+let gameRunning = true;
+
+function startGame() {
+  score = 0;
+  lives = 3;
+  gameRunning = true;
+
+  updateStats();
+
+  messageEl.textContent = "";
+
+  nextRound();
+}
+
+function nextRound() {
+  if (!gameRunning) return;
+
+  patternEl.innerHTML = "";
+  answersEl.innerHTML = "";
+
+  const start = randomNumber(1, 10);
+  const step = randomNumber(1, 5);
+
+  const sequence = [
+    start,
+    start + step,
+    start + step * 2,
+    start + step * 3
+  ];
+
+  correctAnswer = start + step * 4;
+
+  sequence.forEach(num => {
+    const box = document.createElement("div");
+    box.classList.add("pattern-box");
+    box.textContent = num;
+    patternEl.appendChild(box);
+  });
+
+  const question = document.createElement("div");
+  question.classList.add("pattern-box", "question-mark");
+  question.textContent = "?";
+  patternEl.appendChild(question);
+
+  const options = generateAnswers(correctAnswer);
+
+  options.forEach(option => {
+    const btn = document.createElement("button");
+    btn.classList.add("answer-btn");
+    btn.textContent = option;
+
+    btn.addEventListener("click", () => answer(option));
+
+    answersEl.appendChild(btn);
+  });
+}
+
+function answer(choice) {
+  if (!gameRunning) return;
+
+  if (choice === correctAnswer) {
+    score++;
+
+    messageEl.textContent = "Correct ✅";
+    messageEl.style.color = "green";
+  }
+
+  else {
+    lives--;
+
+    messageEl.textContent = "Wrong 😅";
+    messageEl.style.color = "red";
+  }
+
+  updateStats();
+
+  if (lives <= 0) {
+    gameOver();
+    return;
+  }
+
+  setTimeout(nextRound, 700);
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+}
+
+function gameOver() {
+  gameRunning = false;
+
+  messageEl.textContent =
+    "Game Over! Final score: " + score;
+
+  messageEl.style.color = "red";
+}
+
+function randomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateAnswers(correct) {
+  let answers = [correct];
+
+  while (answers.length < 4) {
+    let fake =
+      correct + randomNumber(-10, 10);
+
+    if (
+      fake !== correct &&
+      fake > 0 &&
+      !answers.includes(fake)
+    ) {
+      answers.push(fake);
+    }
+  }
+
+  return answers.sort(() => Math.random() - 0.5);
+}
+
+startGame();
+</script>
+
+</body>
+</html>
