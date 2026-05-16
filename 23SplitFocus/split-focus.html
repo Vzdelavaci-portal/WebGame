@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #23 – Split Focus</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 760px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.areas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.area {
+  position: relative;
+  height: 340px;
+  background: linear-gradient(#dbeafe, #eff6ff);
+  border: 2px solid #0f172a;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.area-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.target {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.left-target {
+  background: #2563eb;
+}
+
+.right-target {
+  background: #ef4444;
+}
+
+.message {
+  min-height: 24px;
+  margin-top: 14px;
+  font-weight: bold;
+}
+
+button {
+  margin-top: 12px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #23 – Split Focus</h1>
+
+  <div class="stats">
+    <div>Score: <span id="score">0</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+    <div>Level: <span id="level">1</span></div>
+  </div>
+
+  <div class="areas">
+
+    <div>
+      <div class="area-title">LEFT SIDE 🔵</div>
+      <div id="leftArea" class="area"></div>
+    </div>
+
+    <div>
+      <div class="area-title">RIGHT SIDE 🔴</div>
+      <div id="rightArea" class="area"></div>
+    </div>
+
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <button onclick="startGame()">Start / Restart</button>
+</div>
+
+<script>
+const leftArea = document.getElementById("leftArea");
+const rightArea = document.getElementById("rightArea");
+
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const levelEl = document.getElementById("level");
+const messageEl = document.getElementById("message");
+
+let score = 0;
+let lives = 3;
+let level = 1;
+
+let gameRunning = false;
+
+let leftInterval;
+let rightInterval;
+
+let leftSpeed = 1500;
+let rightSpeed = 1700;
+
+function startGame() {
+  clearIntervals();
+
+  leftArea.innerHTML = "";
+  rightArea.innerHTML = "";
+
+  score = 0;
+  lives = 3;
+  level = 1;
+
+  leftSpeed = 1500;
+  rightSpeed = 1700;
+
+  gameRunning = true;
+
+  updateStats();
+
+  messageEl.textContent = "";
+
+  spawnLeft();
+  spawnRight();
+
+  leftInterval = setInterval(spawnLeft, leftSpeed);
+  rightInterval = setInterval(spawnRight, rightSpeed);
+}
+
+function spawnLeft() {
+  createTarget(leftArea, "left-target");
+}
+
+function spawnRight() {
+  createTarget(rightArea, "right-target");
+}
+
+function createTarget(area, className) {
+  if (!gameRunning) return;
+
+  const target = document.createElement("div");
+  target.classList.add("target", className);
+
+  const size = 54;
+
+  const x = Math.random() * (area.clientWidth - size);
+  const y = Math.random() * (area.clientHeight - size);
+
+  target.style.left = x + "px";
+  target.style.top = y + "px";
+
+  area.appendChild(target);
+
+  let clicked = false;
+
+  target.addEventListener("click", () => {
+    if (clicked || !gameRunning) return;
+
+    clicked = true;
+
+    target.remove();
+
+    score++;
+
+    if (score % 5 === 0) {
+      level++;
+
+      leftSpeed = Math.max(500, leftSpeed - 120);
+      rightSpeed = Math.max(500, rightSpeed - 120);
+
+      restartIntervals();
+    }
+
+    updateStats();
+
+    messageEl.textContent = "Nice focus 🔥";
+    messageEl.style.color = "green";
+  });
+
+  setTimeout(() => {
+    if (!clicked && gameRunning) {
+
+      if (target.parentNode) {
+        target.remove();
+      }
+
+      lives--;
+
+      updateStats();
+
+      messageEl.textContent = "Missed target 😅";
+      messageEl.style.color = "red";
+
+      if (lives <= 0) {
+        gameOver();
+      }
+    }
+  }, 1400);
+}
+
+function restartIntervals() {
+  clearIntervals();
+
+  leftInterval = setInterval(spawnLeft, leftSpeed);
+  rightInterval = setInterval(spawnRight, rightSpeed);
+}
+
+function clearIntervals() {
+  clearInterval(leftInterval);
+  clearInterval(rightInterval);
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+  levelEl.textContent = level;
+}
+
+function gameOver() {
+  gameRunning = false;
+
+  clearIntervals();
+
+  messageEl.textContent =
+    "Game Over! Final score: " + score;
+
+  messageEl.style.color = "red";
+}
+</script>
+
+</body>
+</html>
