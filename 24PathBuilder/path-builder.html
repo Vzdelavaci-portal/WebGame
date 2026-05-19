@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #24 – Path Builder</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-box {
+  width: 100%;
+  max-width: 560px;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.info {
+  color: #475569;
+  line-height: 1.5;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 50px);
+  gap: 6px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.start {
+  background: #22c55e !important;
+}
+
+.goal {
+  background: #ef4444 !important;
+}
+
+.wall {
+  background: #0f172a !important;
+  cursor: not-allowed;
+}
+
+.path {
+  background: #3b82f6 !important;
+}
+
+.last {
+  outline: 4px solid #facc15;
+}
+
+.message {
+  min-height: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+button {
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.undo {
+  background: #2563eb;
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: repeat(8, 36px);
+  }
+
+  .cell {
+    width: 36px;
+    height: 36px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>WebGame #24 – Path Builder</h1>
+
+  <p class="info">
+    Build a connected path from green to red.<br>
+    Avoid black blocks and use your moves wisely.
+  </p>
+
+  <div class="stats">
+    <div>Level: <span id="level">1</span></div>
+    <div>Moves left: <span id="movesLeft">0</span></div>
+    <div>Used: <span id="usedMoves">0</span></div>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+  <div id="message" class="message">Click Start to begin.</div>
+
+  <div class="buttons">
+    <button class="undo" onclick="undoMove()">Undo</button>
+    <button onclick="startGame()">Start / Restart</button>
+  </div>
+</div>
+
+<script>
+const grid = document.getElementById("grid");
+const levelEl = document.getElementById("level");
+const movesLeftEl = document.getElementById("movesLeft");
+const usedMovesEl = document.getElementById("usedMoves");
+const messageEl = document.getElementById("message");
+
+const size = 8;
+
+let level = 1;
+let maxMoves = 0;
+let usedMoves = 0;
+
+let startCell = 0;
+let goalCell = 0;
+
+let path = [];
+let walls = [];
+let gameActive = false;
+
+function startGame() {
+  grid.innerHTML = "";
+  messageEl.textContent = "";
+
+  usedMoves = 0;
+  path = [];
+  walls = [];
+  gameActive = true;
+
+  createLevel();
+  drawGrid();
+  updateStats();
+}
+
+function createLevel() {
+  startCell = 0;
+  goalCell = size * size - 1;
+
+  maxMoves = 16 + Math.max(0, 6 - level);
+
+  const wallCount = Math.min(8 + level, 20);
+
+  while (walls.length < wallCount) {
+    const wall = randomCell();
+
+    if (
+      wall !== startCell &&
+      wall !== goalCell &&
+      !walls.includes(wall) &&
+      isSolvable([...walls, wall])
+    ) {
+      walls.push(wall);
+    }
+  }
+}
+
+function drawGrid() {
+  grid.innerHTML = "";
+
+  for (let i = 0; i < size * size; i++) {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+
+    if (i === startCell) {
+      cell.classList.add("start");
+    }
+
+    if (i === goalCell) {
+      cell.classList.add("goal");
+    }
+
+    if (walls.includes(i)) {
+      cell.classList.add("wall");
+    }
+
+    if (path.includes(i)) {
+      cell.classList.add("path");
+    }
+
+    if (path.length > 0 && i === path[path.length - 1]) {
+      cell.classList.add("last");
+    }
+
+    cell.addEventListener("click", () => selectCell(i));
+
+    grid.appendChild(cell);
+  }
+}
+
+function selectCell(index) {
+  if (!gameActive) return;
+
+  if (
+    index === startCell ||
+    walls.includes(index) ||
+    path.includes(index)
+  ) {
+    return;
+  }
+
+  const currentPosition =
+    path.length === 0 ? startCell : path[path.length - 1];
+
+  if (!getNeighbors(currentPosition).includes(index)) {
+    messageEl.textContent = "Path must stay connected!";
+    messageEl.style.color = "red";
+    return;
+  }
+
+  if (index === goalCell) {
+    winGame();
+    return;
+  }
+
+  path.push(index);
+  usedMoves++;
+
+  if (usedMoves >= maxMoves) {
+    loseGame();
+    return;
+  }
+
+  messageEl.textContent = "";
+  drawGrid();
+  updateStats();
+}
+
+function undoMove() {
+  if (!gameActive) return;
+
+  if (path.length === 0) return;
+
+  path.pop();
+  usedMoves--;
+
+  messageEl.textContent = "Last move removed";
+  messageEl.style.color = "#2563eb";
+
+  drawGrid();
+  updateStats();
+}
+
+function winGame() {
+  gameActive = false;
+
+  messageEl.textContent = "Level complete! 🎉";
+  messageEl.style.color = "green";
+
+  level++;
+  updateStats();
+
+  setTimeout(startGame, 1200);
+}
+
+function loseGame() {
+  gameActive = false;
+
+  messageEl.textContent = "No moves left! Game over 😅";
+  messageEl.style.color = "red";
+
+  drawGrid();
+  updateStats();
+}
+
+function updateStats() {
+  levelEl.textContent = level;
+  usedMovesEl.textContent = usedMoves;
+  movesLeftEl.textContent = maxMoves - usedMoves;
+}
+
+function getNeighbors(index) {
+  const neighbors = [];
+
+  const row = Math.floor(index / size);
+  const col = index % size;
+
+  if (row > 0) neighbors.push(index - size);
+  if (row < size - 1) neighbors.push(index + size);
+  if (col > 0) neighbors.push(index - 1);
+  if (col < size - 1) neighbors.push(index + 1);
+
+  return neighbors;
+}
+
+function isSolvable(testWalls) {
+  const visited = new Set();
+  const queue = [startCell];
+
+  visited.add(startCell);
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (current === goalCell) {
+      return true;
+    }
+
+    getNeighbors(current).forEach(next => {
+      if (
+        !visited.has(next) &&
+        !testWalls.includes(next)
+      ) {
+        visited.add(next);
+        queue.push(next);
+      }
+    });
+  }
+
+  return false;
+}
+
+function randomCell() {
+  return Math.floor(Math.random() * size * size);
+}
+</script>
+
+</body>
+</html>
