@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Neon Racer</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="game-wrapper">
+
+  <div class="topbar">
+    <h1>Neon Racer</h1>
+
+    <div class="stats">
+      <div class="badge">Score: <span id="score">0</span></div>
+      <div class="badge">Best: <span id="best">0</span></div>
+      <div class="badge">Speed: <span id="speed">1</span></div>
+      <div class="badge">Lives: <span id="lives">3</span></div>
+      <div class="badge">Nitro: <span id="nitro">0</span>%</div>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <canvas id="game" width="520" height="780"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        <h2>🏎️ Neon Racer</h2>
+        <p>
+          Dodge traffic, collect coins and use nitro to survive as long as possible.
+          The road gets faster over time.
+        </p>
+
+        <button onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button
+      onmousedown="keys.left=true"
+      onmouseup="keys.left=false"
+      ontouchstart="keys.left=true"
+      ontouchend="keys.left=false"
+    >
+      ⬅️
+    </button>
+
+    <button
+      onmousedown="keys.nitro=true"
+      onmouseup="keys.nitro=false"
+      ontouchstart="keys.nitro=true"
+      ontouchend="keys.nitro=false"
+    >
+      ⚡
+    </button>
+
+    <button
+      onmousedown="keys.right=true"
+      onmouseup="keys.right=false"
+      ontouchstart="keys.right=true"
+      ontouchend="keys.right=false"
+    >
+      ➡️
+    </button>
+  </div>
+
+  <p class="hint">
+    Controls: A/D or Arrow Keys • Hold Space for Nitro • P pauses game
+  </p>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
