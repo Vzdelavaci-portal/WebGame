@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Pacman</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="game-wrapper">
+  <div class="topbar">
+    <h1>Neon Pacman</h1>
+
+    <div class="stats">
+      <div class="badge">Score: <span id="score">0</span></div>
+      <div class="badge">Best: <span id="best">0</span></div>
+      <div class="badge">Lives: <span id="lives">3</span></div>
+      <div class="badge">Level: <span id="level">1</span></div>
+      <div class="badge">Dots: <span id="dots">0</span></div>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <canvas id="game" width="608" height="608"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        <h2>👾 Neon Pacman</h2>
+        <p>
+          Collect all dots, avoid ghosts and use power-ups.
+          Big dots make ghosts vulnerable for a short time.
+        </p>
+        <button onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="empty">.</button>
+    <button onclick="setNextDirection(0, -1)">⬆️</button>
+    <button class="empty">.</button>
+
+    <button onclick="setNextDirection(-1, 0)">⬅️</button>
+    <button onclick="togglePause()">⏸️</button>
+    <button onclick="setNextDirection(1, 0)">➡️</button>
+
+    <button class="empty">.</button>
+    <button onclick="setNextDirection(0, 1)">⬇️</button>
+    <button class="empty">.</button>
+  </div>
+
+  <p class="hint">
+    Controls: Arrow Keys / WASD • P pauses the game
+  </p>
+</div>
+<script src="script.js"></script>
+
+</body>
+</html>
