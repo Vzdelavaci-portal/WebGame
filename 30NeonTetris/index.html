@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Tetris</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="game-wrapper">
+  <div class="topbar">
+    <h1>Neon Tetris</h1>
+
+    <div class="stats"> 
+      <div class="badge">Score: <span id="score">0</span></div>
+      <div class="badge">Best: <span id="best">0</span></div>
+      <div class="badge">Level: <span id="level">1</span></div>
+      <div class="badge">Lines: <span id="lines">0</span></div>
+      <div class="badge">Combo: <span id="combo">0</span></div>
+    </div>
+  </div>
+
+  <div class="game-layout">
+    <div class="canvas-box">
+      <canvas id="game" width="300" height="600"></canvas>
+
+      <div class="overlay" id="overlay">
+        <div class="panel">
+          <h2>🧱 Neon Tetris</h2>
+          <p>
+            Stack neon blocks, clear lines, build combos and survive as long as possible.
+            Use ghost piece, hold piece and hard drop for better control.
+          </p>
+          <button onclick="startGame()">Start Game</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="side-card">
+        <h3>Next Piece</h3>
+        <canvas id="nextCanvas" width="180" height="120"></canvas>
+      </div>
+
+      <div class="side-card">
+        <h3>Hold Piece</h3>
+        <canvas id="holdCanvas" width="180" height="120"></canvas>
+      </div>
+
+      <div class="side-card">
+        <h3>Controls</h3>
+        <div class="controls-list">
+          ← / A: Move Left<br>
+          → / D: Move Right<br>
+          ↓ / S: Soft Drop<br>
+          ↑ / W: Rotate<br>
+          Space: Hard Drop<br>
+          C: Hold<br>
+          P: Pause
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-controls">
+    <button onclick="movePiece(-1)">⬅️</button>
+    <button onclick="rotatePiece()">🔄</button>
+    <button onclick="softDrop()">⬇️</button>
+    <button onclick="hardDrop()">⚡</button>
+    <button onclick="holdCurrentPiece()">📦</button>
+  </div>
+
+  <p class="hint">
+    Controls: Arrow Keys / WASD • Space Hard Drop • C Hold • P Pause
+  </p>
+</div>
+<script src="script.js"></script>
+
+</body>
+</html>
