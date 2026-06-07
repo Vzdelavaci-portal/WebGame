@@ -1,0 +1,50 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Neon Tower Defense</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="game-wrapper">
+  <div class="topbar">
+    <h1>Neon Tower Defense</h1>
+
+    <div class="stats">
+      <div class="badge">Money: $<span id="money">100</span></div>
+      <div class="badge">Base HP: <span id="baseHp">20</span></div>
+      <div class="badge">Wave: <span id="wave">1</span></div>
+      <div class="badge">Kills: <span id="kills">0</span></div>
+      <div class="badge">Score: <span id="score">0</span></div>
+      <div class="badge">Best: <span id="best">0</span></div>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <canvas id="game" width="800" height="500"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        <h2>🏰 Neon Tower Defense</h2>
+        <p>
+          Build laser towers around the path, destroy enemy waves and protect your base.
+          Click on an empty tile to build a tower.
+        </p>
+
+        <button onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">
+    Click empty tiles to build Laser Towers • Tower cost: $50 • P pauses game
+  </p>
+</div>
+<script src="script.js"></script>
+
+</body>
+</html>
