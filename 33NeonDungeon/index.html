@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Neon Dungeon V2</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head> 
+
+<body>
+
+<div class="game-wrapper">
+  <div class="topbar">
+    <h1>Neon Dungeon</h1>
+
+    <div class="stats">
+      <div class="badge">HP: <span id="hp">100</span></div>
+      <div class="badge">Coins: <span id="coins">0</span></div>
+      <div class="badge">Room: <span id="room">1</span></div>
+      <div class="badge">Kills: <span id="kills">0</span></div>
+      <div class="badge">Weapon: <span id="weapon">Blaster</span></div>
+      <div class="badge">Best: <span id="best">0</span></div>
+    </div>
+  </div>
+
+  <div class="canvas-box">
+    <canvas id="game" width="900" height="560"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        <h2>🏹 Neon Dungeon V2</h2>
+
+        <p>
+          Clear dungeon rooms, avoid enemies, collect coins and buy upgrades between rooms.
+          This version adds walls, room layouts, collision and a shop system.
+        </p>
+
+        <button onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">
+    WASD / Arrow Keys = Move • Mouse = Aim • Left Click = Shoot • P = Pause
+  </p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
