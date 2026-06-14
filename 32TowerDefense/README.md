@@ -2,9 +2,30 @@
 
 A modern neon-inspired Tower Defense game built with pure HTML, CSS and JavaScript.
 
-Build laser towers, stop incoming enemy waves, earn money, upgrade your defense and protect your base from increasingly difficult enemies.
+Build powerful towers, stop enemy waves and protect your base from increasingly dangerous enemies and bosses.
 
-This is the **first version (V1)** of the project and serves as the foundation for future features such as additional tower types, bosses, upgrades and multiple maps.
+---
+
+# 🚀 Latest Update
+
+## Version 2
+
+Based on community feedback, the game has been significantly expanded.
+
+### Added Features
+
+✅ Tesla Tower  
+✅ Freeze Tower  
+✅ Cannon Tower  
+✅ Boss Waves  
+✅ Multiple Enemy Types  
+✅ Tank Boss  
+✅ Speed Boss  
+✅ Shield Boss  
+✅ Chain Lightning Attacks  
+✅ Slow Effects  
+✅ Splash Damage  
+✅ Improved Visual Effects
 
 ---
 
@@ -12,91 +33,126 @@ This is the **first version (V1)** of the project and serves as the foundation f
 
 - Modern neon visual style
 - Wave-based gameplay
-- Laser Towers
-- Enemy path system
+- Multiple tower types
+- Multiple enemy types
+- Boss waves
 - Enemy health bars
 - Money system
 - Score system
 - High score saving
 - Particle effects
-- Laser effects
-- Boss waves
+- Chain lightning effects
+- Explosion effects
 - Responsive design
 - Pause system
 
 ---
 
-# 🕹️ Gameplay
-
-Your objective is simple:
-
-- Build towers
-- Defeat enemies
-- Earn money
-- Survive enemy waves
-- Protect your base
-
-Enemies follow a predefined path and attempt to reach your base.
-
-Each enemy that reaches the base reduces its health.
-
-If the base reaches 0 HP, the game ends.
-
----
-
-# 🏰 Tower System
+# 🏰 Tower Types
 
 ## 🔫 Laser Tower
 
-The first tower available in Version 1.
-
-### Statistics
-
 ```text
 Cost: $50
-Damage: 18
-Range: 125
-Fire Rate: 42
+Damage: Medium
+Range: Medium
+Fire Rate: Fast
 ```
 
-Features:
-
-- Automatically targets enemies
-- Attacks the most advanced enemy in range
-- Uses neon laser beams
-- Generates visual effects
+Balanced tower suitable for all situations.
 
 ---
 
-# 👾 Enemies
-
-Enemies travel along the path and become stronger with each wave.
-
-### Enemy Properties
+## ⚡ Tesla Tower
 
 ```text
-HP
-Speed
-Reward
-Path Progress
+Cost: $80
+Damage: Medium
+Range: Long
+Targets: Multiple
 ```
 
-Enemies provide money and score when defeated.
+Uses chain lightning to hit several enemies.
+
+Best against large groups.
 
 ---
 
-# 🤖 Boss Enemies
+## ❄️ Freeze Tower
 
-Every 5th wave contains a boss enemy.
+```text
+Cost: $70
+Damage: Low
+Support: High
+```
 
-Bosses have:
+Slows enemy movement and helps other towers eliminate targets more efficiently.
 
-- Increased HP
-- Larger size
-- Greater rewards
-- Stronger visual effects
+---
 
-Bosses are marked with a red neon color.
+## 💣 Cannon Tower
+
+```text
+Cost: $90
+Damage: High
+Area Damage: Yes
+```
+
+Fires explosive projectiles that damage multiple enemies.
+
+Perfect against clustered waves.
+
+---
+
+# 👾 Enemy Types
+
+The game contains several enemy variants:
+
+### 🟢 Standard Enemy
+
+Balanced health and speed.
+
+### 🔵 Fast Enemy
+
+Low health but very high speed.
+
+### 🟣 Heavy Enemy
+
+High health but slower movement.
+
+### 🤖 Boss Enemies
+
+Appear every 5th wave.
+
+---
+
+# 🤖 Boss Types
+
+## 💪 Tank Boss
+
+```text
+Very High HP
+Slow Speed
+```
+
+---
+
+## ⚡ Speed Boss
+
+```text
+Medium HP
+Very High Speed
+```
+
+---
+
+## 🛡 Shield Boss
+
+```text
+High HP
+Temporary Shield
+Reduced Damage Taken
+```
 
 ---
 
@@ -107,9 +163,11 @@ Each wave contains more enemies than the previous one.
 Example:
 
 ```text
-Wave 1 = 11 enemies
-Wave 2 = 14 enemies
-Wave 3 = 17 enemies
+Wave 1
+Wave 2
+Wave 3
+...
+Wave 5 = Boss Wave
 ```
 
 Difficulty increases automatically.
@@ -118,46 +176,47 @@ Difficulty increases automatically.
 
 # 💰 Economy System
 
-Players start with:
+Players earn money by defeating enemies.
+
+Money can be spent on building additional towers.
+
+Example:
 
 ```text
-$100
+Laser Tower  = $50
+Freeze Tower = $70
+Tesla Tower  = $80
+Cannon Tower = $90
 ```
-
-Destroying enemies grants money.
-
-Money can be used to build additional towers.
 
 ---
 
 # ❤️ Base Defense
 
-Starting base health:
+Enemies follow a predefined path toward your base.
 
-```text
-20 HP
-```
-
-When enemies reach the end of the path:
+If enemies reach the end:
 
 ```text
 Base HP decreases
 ```
 
-Bosses cause greater damage.
+When Base HP reaches zero:
 
-Protect your base at all costs.
+```text
+Game Over
+```
 
 ---
 
-# 📈 Scoring System
+# 📈 Score System
 
 Points are awarded for:
 
 | Action | Score |
 |----------|----------|
 | Enemy Kill | 50 |
-| Boss Kill | 250 |
+| Boss Kill | 350 |
 
 The game automatically saves the best score using:
 
@@ -171,45 +230,23 @@ localStorage
 
 The game includes:
 
+- Neon glow effects
 - Neon towers
-- Neon paths
 - Neon enemies
 - Laser beams
-- Glow effects
+- Chain lightning
+- Explosions
 - Particle effects
-- Cyberpunk-inspired UI
-- Animated visual feedback
+- Cyberpunk-inspired interface
 
 ---
 
 # 🎛️ Controls
 
-## Desktop
-
 | Action | Control |
 |----------|----------|
 | Build Tower | Left Mouse Click |
 | Pause | P |
-
----
-
-# 🗺️ Map
-
-The first version contains a single predefined map.
-
-Enemy path:
-
-```text
-START
- ↓
- → → → → →
-         ↓
- ← ← ← ← ←
- ↓
- → → → → → → BASE
-```
-
-Future versions will include multiple maps.
 
 ---
 
@@ -226,51 +263,16 @@ NeonTowerDefense/
 
 ---
 
-# 📄 File Description
-
-## index.html
-
-Contains:
-
-- Game layout
-- HUD
-- Start screen
-- Canvas element
-
----
-
-## style.css
-
-Contains:
-
-- Neon styling
-- Layout system
-- Responsive design
-- Buttons
-- UI components
-
----
-
-## script.js
-
-Contains:
-
-- Game loop
-- Enemy system
-- Tower system
-- Laser attacks
-- Wave management
-- Scoring
-- Particle effects
-- Collision logic
-
----
-
 # 🚀 How To Run
 
 1. Download the project
 2. Keep all files in the same folder
-3. Open `index.html`
+3. Open:
+
+```text
+index.html
+```
+
 4. Start defending your base
 
 No installation required.
@@ -291,75 +293,53 @@ No server required.
 
 ---
 
-# 🔮 Planned Features (V2)
+# 🔮 Planned Features (V3)
 
-Future updates may include:
+### 🛡 Tower Upgrades
 
-## ⚡ Tesla Tower
+- Damage Upgrade
+- Range Upgrade
+- Fire Rate Upgrade
 
-Chain lightning attacks.
+### 💰 Sell Towers
 
----
+Recover part of the tower cost.
 
-## ❄️ Freeze Tower
-
-Slows enemy movement.
-
----
-
-## 💣 Cannon Tower
-
-Area damage attacks.
-
----
-
-## 🛡️ Tower Upgrades
-
-Increase:
-
-- Damage
-- Range
-- Fire rate
-
----
-
-## 🤖 Advanced Bosses
-
-Unique boss mechanics.
-
----
-
-## 🗺️ Multiple Maps
+### 🗺 Multiple Maps
 
 Different paths and layouts.
 
----
+### ♾ Endless Mode
 
-## 🏆 Achievements
+Infinite enemy waves.
 
-Unlock rewards by completing challenges.
+### 🏆 Achievement System
 
----
+Unlock rewards and milestones.
 
-## 🎵 Audio
+### 🔊 Audio
 
-- Sound effects
-- Background music
+- Sound Effects
+- Background Music
+
+### 🤖 More Bosses
+
+Additional boss mechanics and abilities.
 
 ---
 
 # 📚 Educational Value
 
-This project is useful for learning:
+This project demonstrates:
 
 - HTML5 Canvas
 - JavaScript Game Development
-- Object Management
-- Enemy AI Path Following
 - Tower Defense Mechanics
-- Particle Systems
-- Collision Detection
+- Enemy Path Following
 - State Management
+- Particle Systems
+- Visual Effects
+- Object Management
 - Local Storage
 - Responsive Design
 
@@ -371,265 +351,50 @@ You are free to:
 
 - Use
 - Modify
-- Extend
 - Learn from
+- Extend
 - Improve
 
 this project for educational and portfolio purposes.
 
 ---
 
----
-
-# 🏰 Neon Tower Defense
+# 🏰 Neon Tower Defense (CZ)
 
 Moderní neonová Tower Defense hra vytvořená pomocí HTML, CSS a JavaScriptu.
 
-Stav laserové věže, zastavuj nepřátelské vlny, vydělávej peníze a braň svou základnu před stále silnějšími protivníky.
+## Hlavní novinky
 
-Tato verze představuje **první vydání (V1)**, na kterém budou postaveny další funkce a rozšíření.
+✅ Tesla Tower  
+✅ Freeze Tower  
+✅ Cannon Tower  
+✅ Boss vlny  
+✅ Více typů nepřátel  
+✅ Tank Boss  
+✅ Speed Boss  
+✅ Shield Boss  
 
----
+## Ovládání
 
-# 🎮 Funkce
+- Levé tlačítko myši = stavba věže
+- P = pauza
 
-- Moderní neonový vzhled
-- Systém vln
-- Laserové věže
-- Cesta nepřátel
-- Ukazatel zdraví nepřátel
-- Peněžní systém
-- Bodovací systém
-- Ukládání rekordů
-- Particle efekty
-- Laser efekty
-- Boss vlny
-- Responzivní design
-- Pauza
-
----
-
-# 🕹️ Hratelnost
-
-Cíl hry:
+## Cíl hry
 
 - Stavět věže
 - Likvidovat nepřátele
-- Získávat peníze
+- Vydělávat peníze
 - Přežít co nejvíce vln
 - Ochránit základnu
 
-Pokud základna přijde o všechny životy, hra končí.
+## Plánované funkce
+
+- Upgrady věží
+- Prodej věží
+- Nekonečný režim
+- Více map
+- Achievementy
+- Zvuky a hudba
 
 ---
-
-# 🏰 Systém věží
-
-## 🔫 Laser Tower
-
-První dostupná věž.
-
-### Statistiky
-
-```text
-Cena: 50 $
-Poškození: 18
-Dosah: 125
-Rychlost střelby: 42
-```
-
-Věž automaticky vyhledává cíle v dosahu a útočí pomocí laserového paprsku.
-
----
-
-# 👾 Nepřátelé
-
-Nepřátelé postupují po předem definované cestě.
-
-Mají:
-
-- životy
-- rychlost
-- odměnu za zničení
-
-Každá další vlna je obtížnější.
-
----
-
-# 🤖 Bossové
-
-Každá pátá vlna obsahuje bosse.
-
-Boss:
-
-- má více životů
-- je větší
-- přináší více bodů
-- poskytuje vyšší finanční odměnu
-
----
-
-# 🌊 Systém vln
-
-Počet nepřátel se postupně zvyšuje.
-
-Příklad:
-
-```text
-Vlna 1 = 11 nepřátel
-Vlna 2 = 14 nepřátel
-Vlna 3 = 17 nepřátel
-```
-
----
-
-# 💰 Ekonomika
-
-Začínáš s:
-
-```text
-100 $
-```
-
-Za zničení nepřátel získáváš další peníze, za které můžeš stavět nové věže.
-
----
-
-# ❤️ Základna
-
-Počáteční zdraví:
-
-```text
-20 HP
-```
-
-Když nepřítel projde do cíle:
-
-```text
-HP se sníží
-```
-
-Bossové způsobují větší poškození.
-
----
-
-# 📈 Bodování
-
-| Akce | Body |
-|----------|----------|
-| Zabití nepřítele | 50 |
-| Zabití bosse | 250 |
-
-Nejlepší skóre se automaticky ukládá pomocí Local Storage.
-
----
-
-# 🎨 Grafické prvky
-
-- Neonové věže
-- Neonová cesta
-- Glow efekty
-- Lasery
-- Particle efekty
-- Moderní cyberpunk vzhled
-- Přehledný HUD
-
----
-
-# 🎛️ Ovládání
-
-## PC
-
-| Akce | Ovládání |
-|----------|----------|
-| Postavit věž | Levé tlačítko myši |
-| Pauza | P |
-
----
-
-# 🗺️ Mapa
-
-První verze obsahuje jednu pevně definovanou mapu.
-
-Další mapy budou přidány v budoucích verzích.
-
----
-
-# 📁 Struktura projektu
-
-```text
-NeonTowerDefense/
-│
-├── index.html
-├── style.css
-├── script.js
-└── README.md
-```
-
----
-
-# 🚀 Spuštění
-
-1. Stáhni projekt
-2. Ulož všechny soubory do stejné složky
-3. Otevři `index.html`
-4. Hraj
-
-Není potřeba:
-
-- instalace
-- framework
-- server
-
----
-
-# 🛠️ Použité technologie
-
-- HTML5
-- CSS3
-- JavaScript
-- Canvas API
-- Local Storage
-
----
-
-# 🔮 Plánované funkce (V2)
-
-- ⚡ Tesla Tower
-- ❄️ Freeze Tower
-- 💣 Cannon Tower
-- 🛡️ Upgrady věží
-- 🤖 Silnější bossové
-- 🗺️ Více map
-- 🏆 Achievementy
-- 🎵 Zvuky a hudba
-
----
-
-# 📚 Výuková hodnota
-
-Projekt je vhodný pro výuku:
-
-- HTML5 Canvas
-- Vývoje her v JavaScriptu
-- Tower Defense mechanik
-- Správy objektů
-- Herních smyček
-- Particle systémů
-- Kolizí
-- Local Storage
-- Responzivního designu
-
----
-
-# 📜 Licence
-
-Projekt můžeš volně:
-
-- používat
-- upravovat
-- rozšiřovat
-- studovat
-- vylepšovat
-
-pro výukové a portfolio účely.
+Built with ❤️ using HTML, CSS and JavaScript.
