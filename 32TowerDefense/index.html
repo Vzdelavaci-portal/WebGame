@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Neon Tower Defense</title>
+  <title>Neon Tower Defense V2</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -12,7 +12,7 @@
 
 <div class="game-wrapper">
   <div class="topbar">
-    <h1>Neon Tower Defense</h1>
+    <h1>Neon Tower Defense V2</h1>
 
     <div class="stats">
       <div class="badge">Money: $<span id="money">100</span></div>
@@ -24,6 +24,13 @@
     </div>
   </div>
 
+  <div class="tower-bar">
+    <button class="tower-btn active" data-type="laser" onclick="selectTowerType('laser')">🔫 Laser <span>$50</span></button>
+    <button class="tower-btn" data-type="tesla" onclick="selectTowerType('tesla')">⚡ Tesla <span>$80</span></button>
+    <button class="tower-btn" data-type="freeze" onclick="selectTowerType('freeze')">❄️ Freeze <span>$70</span></button>
+    <button class="tower-btn" data-type="cannon" onclick="selectTowerType('cannon')">💣 Cannon <span>$90</span></button>
+  </div>
+
   <div class="canvas-box">
     <canvas id="game" width="800" height="500"></canvas>
 
@@ -31,8 +38,8 @@
       <div class="panel">
         <h2>🏰 Neon Tower Defense</h2>
         <p>
-          Build laser towers around the path, destroy enemy waves and protect your base.
-          Click on an empty tile to build a tower.
+          Choose Laser, Tesla, Freeze or Cannon towers, destroy enemy waves and survive boss waves.
+          Select a tower type, then click on an empty tile to build it.
         </p>
 
         <button onclick="startGame()">Start Game</button>
@@ -41,7 +48,7 @@
   </div>
 
   <p class="hint">
-    Click empty tiles to build Laser Towers • Tower cost: $50 • P pauses game
+    Select tower type • Click empty tiles to build • Boss waves every 5 waves • P pauses game
   </p>
 </div>
 <script src="script.js"></script>
