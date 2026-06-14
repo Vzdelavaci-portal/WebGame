@@ -124,3 +124,37 @@
       color: #94a3b8;
       font-size: 0.9rem;
     }
+
+.tower-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.tower-btn {
+  flex: 1 1 150px;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  background: rgba(2, 6, 23, 0.72);
+  color: #e0f2fe;
+  padding: 10px 12px;
+  border-radius: 16px;
+  font-weight: 900;
+}
+
+.tower-btn span {
+  display: block;
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.tower-btn.active {
+  background: linear-gradient(135deg, rgba(56,189,248,.95), rgba(167,139,250,.95));
+  color: #020617;
+  box-shadow: 0 0 22px rgba(56,189,248,.35);
+}
+
+.tower-btn.active span {
+  color: #0f172a;
+}
