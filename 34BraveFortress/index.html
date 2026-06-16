@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Brave Fortress</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="game-wrapper">
+  <div class="topbar">
+    <h1>Brave Fortress</h1>
+
+    <div class="stats">
+      <div class="badge">Gold: <span id="gold">100</span></div>
+      <div class="badge">Castle HP: <span id="castleHp">500</span></div>
+      <div class="badge">Wave: <span id="wave">1</span></div>
+      <div class="badge">Kills: <span id="kills">0</span></div>
+      <div class="badge">Score: <span id="score">0</span></div>
+      <div class="badge">Best: <span id="best">0</span></div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button onclick="spawnUnit('swordsman')">
+      ⚔️ Swordsman <span>10 gold</span>
+    </button>
+
+    <button onclick="spawnUnit('archer')">
+      🏹 Archer <span>15 gold</span>
+    </button>
+
+    <button onclick="spawnUnit('knight')">
+      🛡️ Knight <span>30 gold</span>
+    </button>
+
+    <button onclick="buyUpgrade('mine')">
+      ⛏️ Gold Mine <span id="costMine">50 gold</span>
+    </button>
+
+    <button onclick="buyUpgrade('walls')">
+      🏰 Stronger Walls <span id="costWalls">60 gold</span>
+    </button>
+
+    <button onclick="buyUpgrade('blacksmith')">
+      🔥 Blacksmith <span id="costBlacksmith">70 gold</span>
+    </button>
+  </div>
+
+  <div class="canvas-box">
+    <canvas id="game" width="960" height="520"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="panel">
+        <h2>🏰 Brave Fortress</h2>
+
+        <p>
+          Defend your castle, train brave units, survive enemy waves and defeat the Ogre King.
+        </p>
+
+        <button onclick="startGame()">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">
+    Train units • Earn gold • Upgrade your fortress • Boss appears every 5th wave • P pauses game
+  </p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
