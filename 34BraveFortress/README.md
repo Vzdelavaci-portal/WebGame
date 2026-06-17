@@ -1,10 +1,31 @@
-# 🏰 Brave Fortress
+# 🏰 Brave Fortress V2
 
 A medieval castle defense game built with pure HTML, CSS and JavaScript.
 
 Train warriors, defend your kingdom, earn gold, upgrade your fortress and survive increasingly dangerous enemy waves.
 
 Brave Fortress combines strategy, resource management and real-time combat into a simple but addictive browser game.
+
+---
+
+# 🚀 Version 2 Update
+
+Brave Fortress has received its first major content update.
+
+### New Features
+
+- 🎯 Crossbowman
+- 👑 Elite Knight
+- 💀 Necromancer
+- 🦴 Skeleton Summons
+- 🐉 Dragon Boss
+- 🏰 Improved Castle Design
+- ⛏️ Visible Gold Mine
+- 🔥 Visible Blacksmith
+- 🌲 Environment Decorations
+- ⚔️ Critical Hit System
+
+Version 2 expands both gameplay and visual quality while keeping the original castle defense experience.
 
 ---
 
@@ -15,8 +36,11 @@ Brave Fortress combines strategy, resource management and real-time combat into 
 - Trainable units
 - Enemy waves
 - Boss battles
+- Dragon bosses
 - Gold economy
 - Fortress upgrades
+- Visual upgrade buildings
+- Critical hit system
 - High score saving
 - Particle effects
 - Responsive design
@@ -67,6 +91,35 @@ High Damage
 
 ---
 
+## Crossbowman
+
+Powerful ranged unit with long range and high damage.
+
+### Statistics
+
+```text
+Cost: 25 Gold
+High Damage
+Long Range
+Slow Attack Speed
+```
+
+---
+
+## Elite Knight
+
+Heavy tank unit designed to hold the front line.
+
+### Statistics
+
+```text
+Cost: 50 Gold
+Very High Health
+High Damage
+```
+
+---
+
 # 👾 Enemies
 
 Fight against various enemies:
@@ -74,9 +127,50 @@ Fight against various enemies:
 - Goblins
 - Orcs
 - Trolls
+- Skeletons
+- Necromancers
 - Ogre King Boss
+- Dragon Boss
 
 Each enemy has unique health, damage and speed values.
+
+---
+
+# 💀 Necromancer
+
+A special enemy capable of summoning skeletons during battle.
+
+Abilities:
+
+```text
+Summons Skeleton Warriors
+Long Range Attacks
+Medium Health
+```
+
+---
+
+# 🐉 Dragon Boss
+
+The most dangerous enemy currently in the game.
+
+Appears every:
+
+```text
+Wave 10
+Wave 20
+Wave 30
+```
+
+Dragon Features:
+
+- Flying movement
+- Massive HP
+- Area damage attacks
+- Strong rewards
+- Unique appearance
+
+Defeating a Dragon Boss provides a large amount of gold and score points.
 
 ---
 
@@ -91,7 +185,7 @@ Bosses feature:
 - Greater rewards
 - Larger size
 
-Defeat them to earn bonus gold and score.
+Every 10th wave introduces a Dragon Boss.
 
 ---
 
@@ -101,11 +195,13 @@ Earn gold by:
 
 - Defeating enemies
 - Completing waves
+- Surviving longer
 
 Spend gold on:
 
 - New units
 - Fortress upgrades
+- Economic improvements
 
 ---
 
@@ -115,17 +211,55 @@ Spend gold on:
 
 Generates additional passive income.
 
+Benefits:
+
+- More gold every second
+- Faster progression
+- Visible mine appears next to the castle
+
 ---
 
 ## 🏰 Stronger Walls
 
 Increases castle durability.
 
+Benefits:
+
+- More HP
+- Better survivability
+- Improved castle appearance
+
 ---
 
 ## 🔥 Blacksmith
 
 Improves damage of all units.
+
+Benefits:
+
+- Increased damage
+- Stronger army
+- Visible blacksmith building
+
+---
+
+# ⚔️ Critical Hit System
+
+Units have a chance to deal critical damage.
+
+Critical Hit:
+
+```text
+2x Damage
+```
+
+Visual feedback:
+
+```text
+CRITICAL!
+```
+
+appears above enemies.
 
 ---
 
@@ -144,6 +278,21 @@ If the castle HP reaches zero:
 ```text
 Game Over
 ```
+
+---
+
+# 🎨 Visual Improvements
+
+Version 2 includes:
+
+- Improved castle design
+- Better mountains
+- Character legs
+- Better enemy visibility
+- Decorative environment
+- Gold Mine building
+- Blacksmith building
+- Improved medieval atmosphere
 
 ---
 
@@ -178,6 +327,10 @@ BraveFortress/
 
 No installation required.
 
+No frameworks required.
+
+No server required.
+
 ---
 
 # 🛠️ Technologies Used
@@ -190,32 +343,36 @@ No installation required.
 
 ---
 
-# 🔮 Planned Features
-
-Future updates may include:
-
-- New units
-- Unit upgrades
-- Additional bosses
-- Castle visual upgrades
-- Multiple maps
-- Sound effects
-- Music
-- Achievements
-
----
-
-# 📚 Educational Value
+# 📈 Educational Value
 
 This project demonstrates:
 
-- JavaScript game development
-- Canvas rendering
+- JavaScript Game Development
+- Canvas Rendering
 - Enemy AI
-- Object management
-- Collision detection
-- State management
-- Upgrade systems
+- Object Management
+- State Management
+- Upgrade Systems
+- Economy Systems
+- Particle Effects
+- Collision Detection
+- Local Storage
+
+---
+
+# 🔮 Planned Features (V3)
+
+Future updates may include:
+
+- 🏹 New Unit Types
+- 🐉 Additional Bosses
+- ⚔️ Unit Upgrade System
+- 🗺️ Multiple Maps
+- 🌦️ Weather Effects
+- 🎵 Music
+- 🔊 Sound Effects
+- 💾 Save System
+- 🏆 Achievements
 
 ---
 
@@ -227,13 +384,34 @@ Free to use, modify and extend for educational and portfolio purposes.
 
 ---
 
-# 🏰 Brave Fortress
+# 🏰 Brave Fortress V2
 
 Středověká obranná hra vytvořená pomocí HTML, CSS a JavaScriptu.
 
 Trénuj bojovníky, braň své království, získávej zlato, vylepšuj pevnost a přežij stále náročnější vlny nepřátel.
 
 Brave Fortress kombinuje strategii, správu zdrojů a souboje v reálném čase do jednoduché, ale návykové webové hry.
+
+---
+
+# 🚀 Aktualizace Verze 2
+
+Brave Fortress získal svou první větší aktualizaci.
+
+### Nové funkce
+
+- 🎯 Crossbowman
+- 👑 Elite Knight
+- 💀 Necromancer
+- 🦴 Vyvolávání skeletonů
+- 🐉 Dragon Boss
+- 🏰 Vylepšený vzhled hradu
+- ⛏️ Viditelný důl
+- 🔥 Viditelná kovárna
+- 🌲 Dekorace prostředí
+- ⚔️ Kritické zásahy
+
+Verze 2 rozšiřuje hratelnost i vizuální zpracování při zachování původního konceptu obrany hradu.
 
 ---
 
@@ -244,8 +422,11 @@ Brave Fortress kombinuje strategii, správu zdrojů a souboje v reálném čase 
 - Nábor jednotek
 - Nepřátelské vlny
 - Boss souboje
+- Dragon Boss
 - Ekonomický systém
 - Vylepšování pevnosti
+- Vizuální upgrady budov
+- Kritické zásahy
 - Ukládání rekordů
 - Particle efekty
 - Responzivní design
@@ -296,16 +477,81 @@ Vysoké poškození
 
 ---
 
+## Crossbowman
+
+Silná jednotka na dálku s vysokým poškozením.
+
+### Statistiky
+
+```text
+Cena: 25 zlata
+Vysoké poškození
+Velký dostřel
+Pomalá střelba
+```
+
+---
+
+## Elite Knight
+
+Elitní obrněný rytíř.
+
+### Statistiky
+
+```text
+Cena: 50 zlata
+Velmi vysoké životy
+Vysoké poškození
+```
+
+---
+
 # 👾 Nepřátelé
 
 Bojuj proti různým nepřátelům:
 
 - Goblini
-- Skřeti (Orcs)
+- Orcové
 - Trollové
-- Boss Ogre King
+- Skeletoni
+- Necromancer
+- Ogre King
+- Dragon Boss
 
-Každý nepřítel má vlastní hodnoty zdraví, poškození a rychlosti.
+---
+
+# 💀 Necromancer
+
+Speciální nepřítel schopný vyvolávat skeletony.
+
+Schopnosti:
+
+```text
+Vyvolávání skeletonů
+Útok na dálku
+Střední množství životů
+```
+
+---
+
+# 🐉 Dragon Boss
+
+Nejsilnější nepřítel ve hře.
+
+Objevuje se každou:
+
+```text
+10. vlnu
+20. vlnu
+30. vlnu
+```
+
+Vlastnosti:
+
+- Létání
+- Obrovské množství životů
+- Plošné útoky
+- Vysoké odměny
 
 ---
 
@@ -313,12 +559,7 @@ Každý nepřítel má vlastní hodnoty zdraví, poškození a rychlosti.
 
 Každá 5. vlna obsahuje bosse.
 
-Bossové mají:
-
-- Obrovské množství životů
-- Vyšší poškození
-- Lepší odměny
-- Větší velikost
+Každá 10. vlna obsahuje Dragon Bosse.
 
 ---
 
@@ -328,11 +569,13 @@ Zlato získáváš za:
 
 - Likvidaci nepřátel
 - Dokončení vln
+- Přežití
 
-Zlato můžeš využít pro:
+Zlato využíváš pro:
 
 - Nábor jednotek
 - Vylepšování pevnosti
+- Rozvoj ekonomiky
 
 ---
 
@@ -342,11 +585,15 @@ Zlato můžeš využít pro:
 
 Generuje pasivní příjem zlata.
 
+Po zakoupení se objeví vedle hradu.
+
 ---
 
 ## 🏰 Silnější Hradby
 
 Zvyšují odolnost hradu.
+
+Také vizuálně vylepšují pevnost.
 
 ---
 
@@ -354,11 +601,29 @@ Zvyšují odolnost hradu.
 
 Zvyšuje poškození všech jednotek.
 
+Po zakoupení se objeví jako nová budova.
+
+---
+
+# ⚔️ Kritické Zásahy
+
+Jednotky mají šanci způsobit:
+
+```text
+2x poškození
+```
+
+Nad nepřítelem se zobrazí:
+
+```text
+CRITICAL!
+```
+
 ---
 
 # ❤️ Obrana Hradu
 
-Počáteční zdraví hradu:
+Počáteční zdraví:
 
 ```text
 500 HP
@@ -372,6 +637,21 @@ Konec hry
 
 ---
 
+# 🎨 Vizuální Vylepšení
+
+Verze 2 obsahuje:
+
+- Nový vzhled hradu
+- Vylepšené hory
+- Nohy postav
+- Lepší viditelnost nepřátel
+- Dekorace prostředí
+- Důl
+- Kovárnu
+- Silnější středověkou atmosféru
+
+---
+
 # 🎛️ Ovládání
 
 | Akce | Ovládání |
@@ -382,26 +662,13 @@ Konec hry
 
 ---
 
-# 📁 Struktura Projektu
-
-```text
-BraveFortress/
-│
-├── index.html
-├── style.css
-├── script.js
-└── README.md
-```
-
----
-
 # 🚀 Spuštění
 
 1. Stáhni projekt
 2. Rozbal soubory
 3. Otevři `index.html`
 
-Není potřeba žádná instalace.
+Není potřeba instalace ani server.
 
 ---
 
@@ -415,30 +682,33 @@ Není potřeba žádná instalace.
 
 ---
 
-# 🔮 Plánované Funkce
-
-- Nové jednotky
-- Upgrady jednotek
-- Další bossové
-- Vizuální upgrady hradu
-- Více map
-- Zvuky
-- Hudba
-- Achievementy
-
----
-
 # 📚 Výuková Hodnota
 
 Projekt demonstruje:
 
 - Vývoj her v JavaScriptu
 - Canvas API
-- Umělou inteligenci nepřátel
+- AI nepřátel
 - Správu objektů
-- Detekci kolizí
-- Herní smyčku
+- Herní ekonomiku
 - Upgrade systémy
+- Particle efekty
+- Kolize
+- Local Storage
+
+---
+
+# 🔮 Plánované Funkce (V3)
+
+- 🏹 Nové jednotky
+- 🐉 Další bossové
+- ⚔️ Upgrady jednotek
+- 🗺️ Více map
+- 🌦️ Počasí
+- 🎵 Hudba
+- 🔊 Zvuky
+- 💾 Ukládání postupu
+- 🏆 Achievementy
 
 ---
 
