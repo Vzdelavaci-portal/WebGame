@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brave Fortress V3</title>
+  <title>Brave Fortress V4</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,13 +13,14 @@
       <span class="brand-mark">🏰</span>
       <div>
         <h1>Brave Fortress</h1>
-        <span class="version">Version 3</span>
+        <span class="version">Version 4</span>
       </div>
     </div>
     <div class="stats primary-stats">
       <div class="badge gold-stat"><small>Gold</small><strong id="gold">100</strong></div>
       <div class="badge hp-stat"><small>Castle</small><strong><span id="castleHp">500</span> HP</strong></div>
       <div class="badge"><small>Wave</small><strong id="wave">1</strong></div>
+      <div class="badge map-stat"><small>Region</small><strong id="mapName">Green Valley</strong></div>
     </div>
     <div class="stats secondary-stats">
       <div><small>Kills</small><strong id="kills">0</strong></div>
@@ -32,7 +33,7 @@
     <canvas id="game" width="960" height="520"></canvas>
     <div class="overlay" id="overlay">
       <div class="panel">
-        <h2>🏰 Brave Fortress V3</h2>
+        <h2>🏰 Brave Fortress V4</h2>
         <p>Train soldiers, build your economy, upgrade your castle and survive against goblins, orcs, necromancers and powerful dragon bosses.</p>
         <div id="menuActions"></div>
       </div>
@@ -89,6 +90,7 @@
   </section>
 </div>
 <script src="js/config.js"></script>
+<script src="js/maps.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/waves.js"></script>
 <script src="script.js"></script>
