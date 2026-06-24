@@ -1,4 +1,4 @@
-# Brave Fortress V3
+# Brave Fortress V4
 
 Středověká fantasy hra na obranu hradu vytvořená v čistém HTML, CSS a JavaScriptu.
 
@@ -21,6 +21,19 @@ Najímej vojáky, rozvíjej pevnost a přežij stále nebezpečnější vlny nep
 - Ruční a automatické ukládání
 - Pokračování v uložené hře
 - Responzivní ovládání pomocí záložek
+- Tři hratelné oblasti s vlastními pravidly
+- Obtížnosti Easy, Normal a Hard
+- Trvalé odemykání oblastí
+
+## Kampaň Verze 4
+
+| Oblast | Pravidlo |
+| --- | --- |
+| Green Valley | Vyšší pasivní příjem |
+| Frozen Kingdom | Obě armády jsou pomalejší, nepřátelé výrazněji |
+| Volcanic Lands | Vyšší příjem, rychlejší nepřátelé a periodické poškození hradu |
+
+Green Valley je dostupná okamžitě. Poražení bosse v 10. vlně odemkne další oblast. Odemčené oblasti se ukládají do trvalého profilu a zůstávají dostupné i po spuštění nové hry.
 
 ## Jednotky
 
@@ -62,6 +75,7 @@ bravefortres/
 ├── script.js           # Herní smyčka, boj a Canvas
 ├── js/
 │   ├── config.js       # Konfigurace jednotek, nepřátel a upgradů
+│   ├── maps.js         # Oblasti, obtížnosti a pravidla prostředí
 │   ├── storage.js      # Ukládání hry a nejlepšího skóre
 │   └── waves.js        # Složení vln a výběr nepřátel
 ├── README.md
@@ -76,11 +90,14 @@ Hra používá Canvas API pro vykreslování a `requestAnimationFrame` pro hern�
 Do `localStorage` se ukládá:
 
 - Aktuální vlna, zlato, skóre a stav hradu
+- Vybraná oblast a obtížnost
 - Úrovně jednotek a vylepšení pevnosti
 - Nasazené jednotky a aktivní nepřátelé
 - Ekonomika a průběh vlny
 
 Neplatné nebo nekompatibilní uložené pozice hra bezpečně ignoruje.
+
+Odemčené oblasti se ukládají odděleně od rozehrané kampaně, takže prohra ani nová hra trvalý postup nesmaže.
 
 ## Technologie
 
@@ -92,10 +109,10 @@ Neplatné nebo nekompatibilní uložené pozice hra bezpečně ignoruje.
 
 ## Další možnosti rozvoje
 
-Verze 3 se zaměřuje na kompletní a stabilní zážitek na jedné mapě. Možná budoucí rozšíření:
+Verze 4 přidává základ kampaně. Možná budoucí rozšíření:
 
-- Další bossové a jednotky
-- Více map
+- Unikátní bossové a nepřátelé pro každou oblast
+- Další oblasti a jednotky
 - Efekty počasí
 - Hudba a zvukové efekty
 - Achievementy
