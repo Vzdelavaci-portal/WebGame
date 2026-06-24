@@ -6,7 +6,7 @@ const GAME_CONFIG = Object.freeze({
   startingGold: 100,
   startingCastleHp: 500,
   startingWave: 1,
-  saveVersion: 3
+  saveVersion: 4
 });
 
 const UNIT_CONFIG = Object.freeze({
