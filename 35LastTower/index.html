@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Last Tower</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="top-panel">
+      <div class="brand">
+        <p class="eyebrow" id="versionLabel">Verze 1</p>
+        <h1>Last Tower</h1>
+      </div>
+
+      <div class="language-switch" aria-label="Jazyk">
+        <button class="language-btn is-active" id="langCsBtn" type="button">CZ</button>
+        <button class="language-btn" id="langEnBtn" type="button">EN</button>
+      </div>
+
+      <div class="stats" id="statsPanel" aria-label="Stav hry">
+        <span><span id="waveLabel">Vlna</span> <b id="wave">1</b></span>
+        <span><span id="goldLabel">Zlato</span> <b id="gold">0</b></span>
+        <span><span id="hpLabel">HP</span> <b id="hp">120 / 120</b></span>
+        <span><span id="attackLabel">Útok</span> <b id="attack">14</b></span>
+      </div>
+    </header>
+
+    <canvas id="gameCanvas" width="900" height="600" aria-label="Herní aréna"></canvas>
+
+    <section class="controls" id="controlsPanel" aria-label="Vylepšení">
+      <button id="damageBtn" type="button"></button>
+      <button id="rateBtn" type="button"></button>
+      <button id="rangeBtn" type="button"></button>
+      <button id="repairBtn" type="button"></button>
+      <button id="meteorBtn" type="button"></button>
+      <button id="restartBtn" type="button"></button>
+    </section>
+
+    <p id="message" class="message">Braň poslední věž před temnou hordou.</p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
