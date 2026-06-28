@@ -10,7 +10,7 @@
   <main class="game-shell">
     <header class="top-panel">
       <div class="brand">
-        <p class="eyebrow" id="versionLabel">Verze 1</p>
+        <p class="eyebrow" id="versionLabel">Verze 2</p>
         <h1>Last Tower</h1>
       </div>
 
@@ -24,10 +24,23 @@
         <span><span id="goldLabel">Zlato</span> <b id="gold">0</b></span>
         <span><span id="hpLabel">HP</span> <b id="hp">120 / 120</b></span>
         <span><span id="attackLabel">Útok</span> <b id="attack">14</b></span>
+        <span><span id="bestWaveLabel">Best</span> <b id="bestWave">1</b></span>
       </div>
+
+      <button class="pause-btn" id="pauseBtn" type="button"></button>
     </header>
 
-    <canvas id="gameCanvas" width="900" height="600" aria-label="Herní aréna"></canvas>
+    <div class="arena-wrap">
+      <canvas id="gameCanvas" width="900" height="600" aria-label="Herní aréna"></canvas>
+
+      <div class="perk-overlay is-hidden" id="perkOverlay" aria-live="polite">
+        <div class="perk-panel">
+          <p class="eyebrow" id="perkEyebrow">Odměna za vlnu</p>
+          <h2 id="perkTitle">Vyber jeden perk</h2>
+          <div class="perk-options" id="perkOptions"></div>
+        </div>
+      </div>
+    </div>
 
     <section class="controls" id="controlsPanel" aria-label="Vylepšení">
       <button id="damageBtn" type="button"></button>
