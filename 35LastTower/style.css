@@ -34,7 +34,7 @@ body {
 }
 
 .game-shell {
-  width: min(960px, 100%);
+  width: min(1040px, 100%);
 }
 
 .top-panel {
@@ -80,7 +80,7 @@ h1 {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(84px, 1fr));
+  grid-template-columns: repeat(5, minmax(78px, 1fr));
   gap: 8px;
 }
 
@@ -102,15 +102,80 @@ h1 {
   font-size: 19px;
 }
 
+.arena-wrap {
+  position: relative;
+  margin-top: 14px;
+}
+
 canvas {
   width: 100%;
   aspect-ratio: 3 / 2;
   display: block;
-  margin-top: 14px;
   background: #101522;
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+}
+
+.perk-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 8, 15, 0.72);
+  border-radius: 8px;
+}
+
+.perk-overlay.is-hidden {
+  display: none;
+}
+
+.perk-panel {
+  width: min(720px, 100%);
+  padding: 20px;
+  background: rgba(15, 20, 32, 0.96);
+  border: 1px solid rgba(255, 209, 102, 0.32);
+  border-radius: 8px;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.5);
+}
+
+.perk-panel h2 {
+  margin: 0 0 16px;
+  font-size: 26px;
+}
+
+.perk-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.perk-card {
+  min-height: 150px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  text-align: left;
+  background: linear-gradient(180deg, #283149, #171d2c);
+  border-color: rgba(139, 233, 253, 0.26);
+  color: var(--text);
+}
+
+.perk-card strong {
+  color: var(--gold);
+  font-size: 17px;
+}
+
+.perk-card span {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.perk-card small {
+  align-self: end;
+  color: var(--cyan);
 }
 
 .controls {
@@ -150,6 +215,14 @@ button:hover:not(:disabled) {
 button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
+}
+
+.pause-btn {
+  min-height: 52px;
+  min-width: 110px;
+  border-color: rgba(139, 233, 253, 0.32);
+  background: rgba(139, 233, 253, 0.12);
+  color: var(--text);
 }
 
 #meteorBtn {
@@ -217,5 +290,21 @@ button:disabled {
 
   .controls {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pause-btn {
+    align-self: flex-start;
+  }
+
+  .perk-overlay {
+    padding: 12px;
+  }
+
+  .perk-options {
+    grid-template-columns: 1fr;
+  }
+
+  .perk-card {
+    min-height: 118px;
   }
 }
