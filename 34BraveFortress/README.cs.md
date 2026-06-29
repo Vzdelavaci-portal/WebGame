@@ -1,8 +1,8 @@
-# Brave Fortress V4
+# Brave Fortress V5
 
 Středověká fantasy hra na obranu hradu vytvořená v čistém HTML, CSS a JavaScriptu.
 
-Najímej vojáky, rozvíjej pevnost a přežij stále nebezpečnější vlny nepřátel včetně nekromantů, obrů a draků.
+Najímej vojáky, rozvíjej pevnost a přežij stále nebezpečnější vlny nepřátel včetně mapových nepřátel a regionálních bossů.
 
 [English documentation](README.md)
 
@@ -13,7 +13,9 @@ Najímej vojáky, rozvíjej pevnost a přežij stále nebezpečnější vlny nep
 - Tři úrovně vylepšení každé jednotky
 - Unikátní schopnosti na třetí úrovni
 - Postupně obtížnější nepřátelské vlny
-- Souboje s Ogre a Dragon bossem
+- Souboje s regionálními bossy
+- Unikátní nepřátelé pro jednotlivé oblasti
+- Profil hráče s achievementy
 - Nekromanti vyvolávající skeletony
 - Ekonomika a pasivní příjem zlata
 - Vylepšení hradu, dolu a kovárny
@@ -25,15 +27,19 @@ Najímej vojáky, rozvíjej pevnost a přežij stále nebezpečnější vlny nep
 - Obtížnosti Easy, Normal a Hard
 - Trvalé odemykání oblastí
 
-## Kampaň Verze 4
+## Kampaň Verze 5
 
-| Oblast | Pravidlo |
-| --- | --- |
-| Green Valley | Vyšší pasivní příjem |
-| Frozen Kingdom | Obě armády jsou pomalejší, nepřátelé výrazněji |
-| Volcanic Lands | Vyšší příjem, rychlejší nepřátelé a periodické poškození hradu |
+| Oblast | Pravidlo | Unikátní nepřítel | Boss |
+| --- | --- | --- | --- |
+| Green Valley | Vyšší pasivní příjem | Bandit | Forest Ancient |
+| Frozen Kingdom | Obě armády jsou pomalejší, nepřátelé výrazněji | Ice Wraith | Frost Giant |
+| Volcanic Lands | Vyšší příjem, rychlejší nepřátelé a periodické poškození hradu | Lava Golem | Fire Demon |
 
-Green Valley je dostupná okamžitě. Poražení bosse v 10. vlně odemkne další oblast. Odemčené oblasti se ukládají do trvalého profilu a zůstávají dostupné i po spuštění nové hry.
+Green Valley je dostupná okamžitě. Poražení regionálního bosse v 10. vlně dokončí oblast a odemkne další. Odemčené oblasti, poražení bossové a achievementy se ukládají do trvalého profilu.
+
+## Profil hráče a achievementy
+
+Profil sleduje dokončené oblasti, poražené bossy a odemčené achievementy. Aktuální achievementy pokrývají první zabití, dosažení 5. vlny, poražení každého regionálního bosse, nabrání všech jednotek, vylepšení jednotky na 3. úroveň a výhru na obtížnost Hard.
 
 ## Jednotky
 
@@ -55,6 +61,7 @@ Green Valley je dostupná okamžitě. Poražení bosse v 10. vlně odemkne dalš
 | Přepnutí ovládacího panelu | Záložky Units, Upgrades, Fortress a Menu |
 | Pauza nebo pokračování | Klávesa `P` nebo záložka Menu |
 | Uložení postupu | Save Game v záložce Menu |
+| Zobrazení profilu | Profile v záložce Menu |
 
 Hra se automaticky ukládá po dokončení každé vlny a při skrytí nebo zavření stránky.
 
@@ -76,6 +83,8 @@ bravefortres/
 ├── js/
 │   ├── config.js       # Konfigurace jednotek, nepřátel a upgradů
 │   ├── maps.js         # Oblasti, obtížnosti a pravidla prostředí
+│   ├── bosses.js       # Metadata regionálních bossů
+│   ├── achievements.js # Definice achievementů
 │   ├── storage.js      # Ukládání hry a nejlepšího skóre
 │   └── waves.js        # Složení vln a výběr nepřátel
 ├── README.md
@@ -99,6 +108,8 @@ Neplatné nebo nekompatibilní uložené pozice hra bezpečně ignoruje.
 
 Odemčené oblasti se ukládají odděleně od rozehrané kampaně, takže prohra ani nová hra trvalý postup nesmaže.
 
+Profil hráče ukládá dokončené oblasti, poražené bossy a odemčené achievementy.
+
 ## Technologie
 
 - HTML5
@@ -109,13 +120,12 @@ Odemčené oblasti se ukládají odděleně od rozehrané kampaně, takže prohr
 
 ## Další možnosti rozvoje
 
-Verze 4 přidává základ kampaně. Možná budoucí rozšíření:
+Verze 5 přidává regionální bossy, mapové nepřátele, achievementy a profil hráče. Možná budoucí rozšíření:
 
-- Unikátní bossové a nepřátelé pro každou oblast
 - Další oblasti a jednotky
 - Efekty počasí
 - Hudba a zvukové efekty
-- Achievementy
+- Pokročilejší schopnosti bossů
 
 ## Licence
 
