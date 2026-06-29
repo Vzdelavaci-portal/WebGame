@@ -4,8 +4,15 @@ const WaveDirector = (() => {
     return 5 + wave * 2;
   }
 
-  function getEnemyType(wave, random = Math.random()) {
-    if (wave % 10 === 0) return 'dragon';
+  const mapEnemies = Object.freeze({
+    greenValley: 'bandit',
+    frozenKingdom: 'iceWraith',
+    volcanicLands: 'lavaGolem'
+  });
+
+  function getEnemyType(wave, mapId = 'greenValley', random = Math.random()) {
+    if (wave % 10 === 0 && typeof BOSS_CONFIG !== 'undefined') return BOSS_CONFIG[mapId]?.type || 'dragon';
+    if (wave >= 3 && random > 0.86 && mapEnemies[mapId]) return mapEnemies[mapId];
     if (wave % 5 === 0) return 'boss';
     if (wave >= 7 && random > 0.82) return 'necromancer';
     if (wave >= 4 && random > 0.78) return 'troll';
@@ -13,8 +20,8 @@ const WaveDirector = (() => {
     return 'goblin';
   }
 
-  function getTitle(wave) {
-    if (wave % 10 === 0) return `DRAGON WAVE ${wave}`;
+  function getTitle(wave, mapId = 'greenValley') {
+    if (wave % 10 === 0 && typeof BOSS_CONFIG !== 'undefined') return `${BOSS_CONFIG[mapId]?.name || 'DRAGON'} WAVE ${wave}`;
     if (wave % 5 === 0) return `BOSS WAVE ${wave}`;
     return `WAVE ${wave}`;
   }
@@ -31,10 +38,9 @@ const WaveDirector = (() => {
 
   return Object.freeze({
     getEnemyCount,
-    getEnemyType,
+      getEnemyType,
     getTitle,
     getTitleColor,
     isBossWave
   });
 })();
-
