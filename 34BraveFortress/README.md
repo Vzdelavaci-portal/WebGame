@@ -1,8 +1,8 @@
-# Brave Fortress V4
+# Brave Fortress V5
 
 A medieval fantasy castle-defense game built with vanilla HTML, CSS and JavaScript.
 
-Recruit soldiers, develop your fortress and survive increasingly dangerous enemy waves, including necromancers, ogres and dragons.
+Recruit soldiers, develop your fortress and survive increasingly dangerous enemy waves, including map-specific enemies and regional bosses.
 
 [Česká dokumentace](README.cs.md)
 
@@ -13,7 +13,9 @@ Recruit soldiers, develop your fortress and survive increasingly dangerous enemy
 - Three-level upgrade system for every unit
 - Unique level 3 abilities
 - Enemy waves with increasing difficulty
-- Ogre and Dragon boss battles
+- Regional boss battles
+- Map-specific enemies
+- Player profile with achievements
 - Necromancers that summon skeletons
 - Gold economy and passive income
 - Castle, mine and blacksmith upgrades
@@ -25,15 +27,19 @@ Recruit soldiers, develop your fortress and survive increasingly dangerous enemy
 - Easy, Normal and Hard difficulty
 - Persistent region unlock progression
 
-## Version 4 Campaign
+## Version 5 Campaign
 
-| Region | Rule |
-| --- | --- |
-| Green Valley | Increased passive income |
-| Frozen Kingdom | Both armies are slower, with a larger penalty for enemies |
-| Volcanic Lands | Better income, faster enemies and periodic castle damage |
+| Region | Rule | Unique enemy | Boss |
+| --- | --- | --- | --- |
+| Green Valley | Increased passive income | Bandit | Forest Ancient |
+| Frozen Kingdom | Both armies are slower, with a larger penalty for enemies | Ice Wraith | Frost Giant |
+| Volcanic Lands | Better income, faster enemies and periodic castle damage | Lava Golem | Fire Demon |
 
-Green Valley is available immediately. Defeating the wave 10 boss unlocks the next region. Region unlocks are stored in a persistent player profile and remain available after starting a new game.
+Green Valley is available immediately. Defeating the wave 10 regional boss completes the region and unlocks the next one. Region unlocks, defeated bosses and achievements are stored in a persistent player profile.
+
+## Player Profile and Achievements
+
+The profile tracks completed regions, defeated bosses and unlocked achievements. Current achievements cover first kill, reaching wave 5, defeating each regional boss, recruiting the full roster, upgrading a unit to level 3 and winning on Hard difficulty.
 
 ## Units
 
@@ -55,6 +61,7 @@ Green Valley is available immediately. Defeating the wave 10 boss unlocks the ne
 | Switch control panel | Units, Upgrades, Fortress and Menu tabs |
 | Pause or continue | `P` or the Menu tab |
 | Save progress | Save Game in the Menu tab |
+| View profile | Profile in the Menu tab |
 
 The game automatically saves after every completed wave and when the page is hidden or closed.
 
@@ -76,6 +83,8 @@ bravefortres/
 ├── js/
 │   ├── config.js       # Unit, enemy and upgrade configuration
 │   ├── maps.js         # Regions, difficulty and environmental rules
+│   ├── bosses.js       # Regional boss metadata
+│   ├── achievements.js # Achievement definitions
 │   ├── storage.js      # High score and saved-game storage
 │   └── waves.js        # Wave composition and enemy selection
 ├── README.md
@@ -99,6 +108,8 @@ Invalid or incompatible saves are ignored safely.
 
 Region unlocks are stored separately from the current campaign, so losing or starting a new game does not reset progression.
 
+The player profile stores completed regions, defeated bosses and unlocked achievements.
+
 ## Technologies
 
 - HTML5
@@ -109,13 +120,12 @@ Region unlocks are stored separately from the current campaign, so losing or sta
 
 ## Roadmap
 
-Version 4 introduces the campaign foundation. Possible future additions:
+Version 5 adds regional bosses, map-specific enemies, achievements and the player profile. Possible future additions:
 
-- Unique boss and enemy set for every region
 - Additional regions and unit types
 - Weather effects
 - Music and sound effects
-- Achievements
+- More advanced boss abilities
 
 ## License
 
