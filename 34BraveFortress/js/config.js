@@ -6,7 +6,7 @@ const GAME_CONFIG = Object.freeze({
   startingGold: 100,
   startingCastleHp: 500,
   startingWave: 1,
-  saveVersion: 4
+  saveVersion: 5
 });
 
 const UNIT_CONFIG = Object.freeze({
@@ -178,5 +178,69 @@ const ENEMY_CONFIG = Object.freeze({
     boss: true,
     dragon: true,
     flying: true
+  },
+  bandit: {
+    hp: 90,
+    damage: 11,
+    range: 32,
+    speed: 1.08,
+    rate: 50,
+    reward: 12,
+    color: '#a16207'
+  },
+  iceWraith: {
+    hp: 115,
+    damage: 14,
+    range: 95,
+    speed: 0.66,
+    rate: 78,
+    reward: 18,
+    color: '#67e8f9',
+    chill: true
+  },
+  lavaGolem: {
+    hp: 320,
+    damage: 28,
+    range: 40,
+    speed: 0.42,
+    rate: 82,
+    reward: 34,
+    color: '#f97316',
+    burnAura: true
+  },
+  forestAncient: {
+    hp: 1350,
+    damage: 30,
+    range: 70,
+    speed: 0.34,
+    rate: 86,
+    reward: 250,
+    color: '#15803d',
+    boss: true,
+    mapBoss: true
+  },
+  frostGiant: {
+    hp: 1650,
+    damage: 38,
+    range: 80,
+    speed: 0.31,
+    rate: 92,
+    reward: 300,
+    color: '#38bdf8',
+    boss: true,
+    mapBoss: true,
+    chill: true
+  },
+  fireDemon: {
+    hp: 1850,
+    damage: 44,
+    range: 120,
+    speed: 0.46,
+    rate: 92,
+    reward: 360,
+    color: '#dc2626',
+    boss: true,
+    mapBoss: true,
+    burnAura: true
   }
 });
