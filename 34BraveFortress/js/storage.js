@@ -1,7 +1,7 @@
 const GameStorage = (() => {
   const keys = Object.freeze({
     bestScore: 'braveFortressBestV2',
-    gameSave: 'braveFortressSaveV4',
+    gameSave: 'braveFortressSaveV5',
     profile: 'braveFortressProfileV4'
   });
 
@@ -63,7 +63,7 @@ const GameStorage = (() => {
     try {
       const profile = JSON.parse(localStorage.getItem(keys.profile));
       if (!profile || typeof profile !== 'object') {
-        return { unlockedMaps: ['greenValley'], victories: {} };
+        return { unlockedMaps: ['greenValley'], victories: {}, defeatedBosses: {}, achievements: [] };
       }
 
       return {
@@ -72,10 +72,16 @@ const GameStorage = (() => {
           : ['greenValley'],
         victories: profile.victories && typeof profile.victories === 'object'
           ? profile.victories
-          : {}
+          : {},
+        defeatedBosses: profile.defeatedBosses && typeof profile.defeatedBosses === 'object'
+          ? profile.defeatedBosses
+          : {},
+        achievements: Array.isArray(profile.achievements)
+          ? [...new Set(profile.achievements)]
+          : []
       };
     } catch {
-      return { unlockedMaps: ['greenValley'], victories: {} };
+      return { unlockedMaps: ['greenValley'], victories: {}, defeatedBosses: {}, achievements: [] };
     }
   }
 
