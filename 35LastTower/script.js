@@ -23,6 +23,10 @@ const ui = {
   perkEyebrow: document.getElementById("perkEyebrow"),
   perkTitle: document.getElementById("perkTitle"),
   perkOptions: document.getElementById("perkOptions"),
+  wavePreview: document.getElementById("wavePreview"),
+  previewLabel: document.getElementById("previewLabel"),
+  previewTitle: document.getElementById("previewTitle"),
+  previewDetails: document.getElementById("previewDetails"),
   damageBtn: document.getElementById("damageBtn"),
   rateBtn: document.getElementById("rateBtn"),
   rangeBtn: document.getElementById("rangeBtn"),
@@ -31,7 +35,7 @@ const ui = {
   restartBtn: document.getElementById("restartBtn")
 };
 
-const storageKey = "lastTowerBestWaveV2";
+const storageKey = "lastTowerBestWaveV3";
 
 const tower = {
   x: canvas.width / 2,
@@ -65,7 +69,12 @@ const state = {
   gameOver: false,
   paused: false,
   choosingPerk: false,
-  perkChoices: []
+  perkChoices: [],
+  killed: 0,
+  bossesKilled: 0,
+  goldEarned: 0,
+  perksTaken: [],
+  projectileMode: "arcane"
 };
 
 const upgrades = {
@@ -76,77 +85,24 @@ const upgrades = {
 };
 
 const enemyTypes = [
-  { icon: "imp", hp: 24, speed: 52, reward: 7, damage: 8, size: 10, color: "#ff6b6b" },
-  { icon: "shade", hp: 18, speed: 78, reward: 8, damage: 6, size: 9, color: "#b56bff" },
-  { icon: "brute", hp: 58, speed: 36, reward: 15, damage: 14, size: 14, color: "#ffb347" }
+  { id: "imp", hp: 24, speed: 52, reward: 7, damage: 8, size: 10, color: "#ff6b6b", minWave: 1, weight: 42 },
+  { id: "shade", hp: 18, speed: 80, reward: 8, damage: 6, size: 9, color: "#b56bff", minWave: 2, weight: 30 },
+  { id: "brute", hp: 58, speed: 36, reward: 15, damage: 14, size: 14, color: "#ffb347", minWave: 4, weight: 18 },
+  { id: "runner", hp: 16, speed: 112, reward: 10, damage: 7, size: 8, color: "#6df7c1", minWave: 6, weight: 20 },
+  { id: "shield", hp: 46, speed: 44, reward: 16, damage: 12, size: 13, color: "#7aa2ff", minWave: 7, weight: 16, shield: 22 },
+  { id: "healer", hp: 34, speed: 42, reward: 18, damage: 9, size: 12, color: "#83f28f", minWave: 8, weight: 12, healer: true },
+  { id: "splitter", hp: 42, speed: 50, reward: 17, damage: 10, size: 12, color: "#f78cff", minWave: 9, weight: 12, splits: 2 }
 ];
 
-const bossType = {
-  icon: "boss",
-  hp: 360,
-  speed: 27,
-  reward: 85,
-  damage: 32,
-  size: 28,
-  color: "#ff3d81"
-};
-
-const perkDefinitions = [
-  {
-    id: "damage",
-    title: { cs: "Ostřejší krystal", en: "Sharper Crystal" },
-    desc: { cs: "+10 k útoku věže.", en: "+10 tower attack." },
-    apply() {
-      tower.damage += 10;
-    }
-  },
-  {
-    id: "rate",
-    title: { cs: "Rychlá runa", en: "Quick Rune" },
-    desc: { cs: "Kadence střelby je rychlejší.", en: "Fire rate is faster." },
-    apply() {
-      tower.fireRate = Math.max(0.18, tower.fireRate - 0.08);
-    }
-  },
-  {
-    id: "range",
-    title: { cs: "Dlouhý dohled", en: "Long Watch" },
-    desc: { cs: "+35 k dosahu věže.", en: "+35 tower range." },
-    apply() {
-      tower.range = Math.min(390, tower.range + 35);
-    }
-  },
-  {
-    id: "maxHp",
-    title: { cs: "Kamenné zdivo", en: "Stone Walls" },
-    desc: { cs: "+25 max HP a okamžitá oprava.", en: "+25 max HP and instant repair." },
-    apply() {
-      tower.maxHp += 25;
-      tower.hp = Math.min(tower.maxHp, tower.hp + 25);
-    }
-  },
-  {
-    id: "meteor",
-    title: { cs: "Nebeský oheň", en: "Sky Fire" },
-    desc: { cs: "Meteor má o 2 s kratší cooldown.", en: "Meteor cooldown is 2 s shorter." },
-    apply() {
-      state.meteorMaxCooldown = Math.max(8, state.meteorMaxCooldown - 2);
-      state.meteorCooldown = Math.min(state.meteorCooldown, state.meteorMaxCooldown);
-    }
-  },
-  {
-    id: "gold",
-    title: { cs: "Zlatá daň", en: "Gold Tax" },
-    desc: { cs: "Okamžitě získáš 65 zlata.", en: "Gain 65 gold immediately." },
-    apply() {
-      state.gold += 65;
-    }
-  }
+const bossTypes = [
+  { id: "bossTank", hp: 430, speed: 23, reward: 95, damage: 36, size: 31, color: "#ff3d81" },
+  { id: "bossSummoner", hp: 330, speed: 28, reward: 105, damage: 28, size: 29, color: "#b56bff", summoner: true },
+  { id: "bossShield", hp: 360, speed: 26, reward: 110, damage: 30, size: 30, color: "#7aa2ff", shield: 80 }
 ];
 
 const text = {
   cs: {
-    version: "Verze 2",
+    version: "Verze 3",
     stats: "Stav hry",
     controls: "Vylepšení",
     arena: "Herní aréna",
@@ -173,13 +129,17 @@ const text = {
     start: "Braň poslední věž před temnou hordou.",
     idle: "Temnota útočí ze všech stran.",
     enemyHit: "Nepřítel prorazil k věži.",
-    gameOver: "Věž padla ve vlně {wave}. Restartuj a zkus silnější build.",
+    gameOver: "Věž padla ve vlně {wave}. Statistiky runu jsou na ploše.",
     gameOverTitle: "Věž padla",
-    gameOverHelp: "Použij restart pod arénou.",
-    bossIncoming: "Vlna {wave}: boss přichází.",
+    gameOverHelp: "Restartuj a zkus jiný build.",
+    bossIncoming: "Vlna {wave}: {boss} přichází.",
     bossDefeated: "Boss padl. Vyber odměnu.",
     nextWave: "Vlna {wave} začíná.",
-    perkEyebrow: "Odměna za vlnu",
+    previewLabel: "Další vlna",
+    previewBoss: "Boss vlna",
+    previewEnemies: "Nepřátelé",
+    previewReward: "Odměna",
+    perkEyebrow: "Odměna za bosse",
     perkTitle: "Vyber jeden perk",
     pickPerk: "Vybrat",
     perkChosen: "Perk aktivován: {perk}.",
@@ -187,10 +147,31 @@ const text = {
     rateUp: "Věž střílí rychleji.",
     rangeUp: "Dosah věže: {range}.",
     repairUp: "Zdivo věže je opravené.",
-    meteorCast: "Meteor spálil hordu kolem věže."
+    meteorCast: "Meteor spálil hordu kolem věže.",
+    kills: "Zabití",
+    bosses: "Bossové",
+    earned: "Získané zlato",
+    perks: "Perky",
+    projectile: "Střely",
+    arcane: "Arcane",
+    fire: "Oheň",
+    ice: "Led",
+    lightning: "Blesk",
+    none: "žádné",
+    enemies_imp: "Imp",
+    enemies_shade: "Stín",
+    enemies_brute: "Tank",
+    enemies_runner: "Běžec",
+    enemies_shield: "Štítonoš",
+    enemies_healer: "Léčitel",
+    enemies_splitter: "Dělič",
+    enemies_minion: "Poskok",
+    bosses_bossTank: "Obr",
+    bosses_bossSummoner: "Vyvolávač",
+    bosses_bossShield: "Štítový boss"
   },
   en: {
-    version: "Version 2",
+    version: "Version 3",
     stats: "Game status",
     controls: "Upgrades",
     arena: "Game arena",
@@ -217,13 +198,17 @@ const text = {
     start: "Defend the last tower from the dark horde.",
     idle: "Darkness attacks from every side.",
     enemyHit: "An enemy broke through to the tower.",
-    gameOver: "The tower fell on wave {wave}. Restart and try a stronger build.",
+    gameOver: "The tower fell on wave {wave}. Run stats are shown in the arena.",
     gameOverTitle: "Tower fallen",
-    gameOverHelp: "Use restart below the arena.",
-    bossIncoming: "Wave {wave}: the boss is coming.",
+    gameOverHelp: "Restart and try a different build.",
+    bossIncoming: "Wave {wave}: {boss} is coming.",
     bossDefeated: "The boss fell. Choose a reward.",
     nextWave: "Wave {wave} begins.",
-    perkEyebrow: "Wave reward",
+    previewLabel: "Next wave",
+    previewBoss: "Boss wave",
+    previewEnemies: "Enemies",
+    previewReward: "Reward",
+    perkEyebrow: "Boss reward",
     perkTitle: "Choose one perk",
     pickPerk: "Pick",
     perkChosen: "Perk activated: {perk}.",
@@ -231,13 +216,103 @@ const text = {
     rateUp: "The tower fires faster.",
     rangeUp: "Tower range: {range}.",
     repairUp: "The tower walls are repaired.",
-    meteorCast: "The meteor burned the horde around the tower."
+    meteorCast: "The meteor burned the horde around the tower.",
+    kills: "Kills",
+    bosses: "Bosses",
+    earned: "Gold earned",
+    perks: "Perks",
+    projectile: "Shots",
+    arcane: "Arcane",
+    fire: "Fire",
+    ice: "Ice",
+    lightning: "Lightning",
+    none: "none",
+    enemies_imp: "Imp",
+    enemies_shade: "Shade",
+    enemies_brute: "Tank",
+    enemies_runner: "Runner",
+    enemies_shield: "Shield",
+    enemies_healer: "Healer",
+    enemies_splitter: "Splitter",
+    enemies_minion: "Minion",
+    bosses_bossTank: "Giant",
+    bosses_bossSummoner: "Summoner",
+    bosses_bossShield: "Shield Boss"
   }
 };
 
+const perkDefinitions = [
+  {
+    id: "damage",
+    title: { cs: "Ostřejší krystal", en: "Sharper Crystal" },
+    desc: { cs: "+10 k útoku věže.", en: "+10 tower attack." },
+    apply() {
+      tower.damage += 10;
+    }
+  },
+  {
+    id: "fire",
+    title: { cs: "Ohnivé střely", en: "Fire Shots" },
+    desc: { cs: "Střely zapalují nepřátele.", en: "Shots burn enemies over time." },
+    apply() {
+      state.projectileMode = "fire";
+    }
+  },
+  {
+    id: "ice",
+    title: { cs: "Ledové střely", en: "Ice Shots" },
+    desc: { cs: "Střely krátce zpomalují cíl.", en: "Shots briefly slow the target." },
+    apply() {
+      state.projectileMode = "ice";
+    }
+  },
+  {
+    id: "lightning",
+    title: { cs: "Bleskové střely", en: "Lightning Shots" },
+    desc: { cs: "Zásah přeskočí na blízkého nepřítele.", en: "Hits chain to a nearby enemy." },
+    apply() {
+      state.projectileMode = "lightning";
+    }
+  },
+  {
+    id: "range",
+    title: { cs: "Dlouhý dohled", en: "Long Watch" },
+    desc: { cs: "+35 k dosahu věže.", en: "+35 tower range." },
+    apply() {
+      tower.range = Math.min(410, tower.range + 35);
+    }
+  },
+  {
+    id: "maxHp",
+    title: { cs: "Kamenné zdivo", en: "Stone Walls" },
+    desc: { cs: "+25 max HP a okamžitá oprava.", en: "+25 max HP and instant repair." },
+    apply() {
+      tower.maxHp += 25;
+      tower.hp = Math.min(tower.maxHp, tower.hp + 25);
+    }
+  },
+  {
+    id: "meteor",
+    title: { cs: "Nebeský oheň", en: "Sky Fire" },
+    desc: { cs: "Meteor má o 2 s kratší cooldown.", en: "Meteor cooldown is 2 s shorter." },
+    apply() {
+      state.meteorMaxCooldown = Math.max(8, state.meteorMaxCooldown - 2);
+      state.meteorCooldown = Math.min(state.meteorCooldown, state.meteorMaxCooldown);
+    }
+  },
+  {
+    id: "gold",
+    title: { cs: "Zlatá daň", en: "Gold Tax" },
+    desc: { cs: "Okamžitě získáš 75 zlata.", en: "Gain 75 gold immediately." },
+    apply() {
+      addGold(75);
+    }
+  }
+];
+
 function loadBestWave() {
   try {
-    return Number(localStorage.getItem(storageKey)) || 1;
+    return Number(localStorage.getItem(storageKey) || localStorage.getItem("lastTowerBestWaveV2")) || 1;
   } catch {
     return 1;
   }
@@ -266,11 +341,24 @@ function localPerkText(perk, field) {
   return perk[field][state.lang] || perk[field].cs;
 }
 
+function enemyName(id) {
+  return t(`enemies_${id}`);
+}
+
+function bossName(id) {
+  return t(`bosses_${id}`);
+}
+
 function setMessage(key, seconds = 2.2, vars = {}) {
   state.messageKey = key;
   state.messageVars = vars;
   ui.message.textContent = t(key, vars);
   state.messageTimer = seconds;
+}
+
+function addGold(amount) {
+  state.gold += amount;
+  state.goldEarned += amount;
 }
 
 function updateStaticText() {
@@ -281,12 +369,15 @@ function updateStaticText() {
   ui.hpLabel.textContent = t("hp");
   ui.attackLabel.textContent = t("attack");
   ui.bestWaveLabel.textContent = t("bestWave");
+  ui.previewLabel.textContent = t("previewLabel");
   ui.statsPanel.setAttribute("aria-label", t("stats"));
   ui.controlsPanel.setAttribute("aria-label", t("controls"));
+  ui.wavePreview.setAttribute("aria-label", t("previewLabel"));
   ui.langCsBtn.parentElement.setAttribute("aria-label", t("language"));
   canvas.setAttribute("aria-label", t("arena"));
   ui.langCsBtn.classList.toggle("is-active", state.lang === "cs");
   ui.langEnBtn.classList.toggle("is-active", state.lang === "en");
+  updateWavePreview();
   renderPerkChoices();
 }
 
@@ -316,7 +407,7 @@ function resetGame() {
   state.particles = [];
   state.spawnTimer = 0;
   state.spawnedEnemies = 0;
-  state.enemiesToSpawn = 9;
+  state.enemiesToSpawn = getWaveEnemyCount(1);
   state.meteorCooldown = 0;
   state.meteorMaxCooldown = 15;
   state.lastTime = performance.now();
@@ -324,6 +415,11 @@ function resetGame() {
   state.paused = false;
   state.choosingPerk = false;
   state.perkChoices = [];
+  state.killed = 0;
+  state.bossesKilled = 0;
+  state.goldEarned = 0;
+  state.perksTaken = [];
+  state.projectileMode = "arcane";
 
   upgrades.damage.cost = 35;
   upgrades.damage.level = 1;
@@ -335,6 +431,7 @@ function resetGame() {
   upgrades.repair.level = 1;
 
   hidePerkOverlay();
+  updateWavePreview();
   setMessage("start", 3);
   updateUI();
 }
@@ -343,15 +440,34 @@ function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function isBossWave() {
-  return state.wave % 5 === 0;
+function isBossWave(wave = state.wave) {
+  return wave % 5 === 0;
+}
+
+function getWaveEnemyCount(wave) {
+  return isBossWave(wave) ? 1 : 8 + wave * 3;
+}
+
+function getBossForWave(wave) {
+  const bossIndex = Math.floor(wave / 5 - 1) % bossTypes.length;
+  return bossTypes[bossIndex];
+}
+
+function getAvailableEnemyTypes(wave) {
+  return enemyTypes.filter(type => wave >= type.minWave);
 }
 
 function pickEnemyType() {
-  const roll = Math.random();
-  if (state.wave >= 4 && roll > 0.78) return enemyTypes[2];
-  if (state.wave >= 2 && roll > 0.45) return enemyTypes[1];
-  return enemyTypes[0];
+  const available = getAvailableEnemyTypes(state.wave);
+  const totalWeight = available.reduce((sum, type) => sum + type.weight, 0);
+  let roll = Math.random() * totalWeight;
+
+  for (const type of available) {
+    roll -= type.weight;
+    if (roll <= 0) return type;
+  }
+
+  return available[0];
 }
 
 function spawnPoint() {
@@ -365,18 +481,30 @@ function spawnPoint() {
 }
 
 function createEnemyFromType(type, point, waveScale, isBoss = false) {
+  const maxHp = Math.round(type.hp * waveScale);
   return {
     x: point.x,
     y: point.y,
-    hp: Math.round(type.hp * waveScale),
-    maxHp: Math.round(type.hp * waveScale),
+    hp: maxHp,
+    maxHp,
     speed: type.speed + (isBoss ? state.wave : state.wave * 2),
+    baseSpeed: type.speed + (isBoss ? state.wave : state.wave * 2),
     reward: type.reward + Math.floor(state.wave * (isBoss ? 8 : 1.5)),
     damage: type.damage,
     size: type.size,
     color: type.color,
-    icon: type.icon,
+    icon: type.id,
     isBoss,
+    shield: type.shield || 0,
+    healer: Boolean(type.healer),
+    splits: type.splits || 0,
+    summoner: Boolean(type.summoner),
+    summonTimer: type.summoner ? 4 : 0,
+    burnTimer: 0,
+    burnDps: 0,
+    slowTimer: 0,
+    slowFactor: 1,
+    healTimer: 0,
     hitFlash: 0
   };
 }
@@ -385,8 +513,9 @@ function spawnEnemy() {
   const point = spawnPoint();
 
   if (isBossWave() && state.spawnedEnemies === 0) {
+    const boss = getBossForWave(state.wave);
     const bossScale = 1 + state.wave * 0.22;
-    state.enemies.push(createEnemyFromType(bossType, point, bossScale, true));
+    state.enemies.push(createEnemyFromType(boss, point, bossScale, true));
     return;
   }
 
@@ -395,9 +524,14 @@ function spawnEnemy() {
   state.enemies.push(createEnemyFromType(type, point, waveScale));
 }
 
+function createMinion(x, y) {
+  const type = { id: "minion", hp: 15, speed: 72, reward: 3, damage: 5, size: 7, color: "#d7ff72" };
+  return createEnemyFromType(type, { x, y }, 1 + state.wave * 0.08);
+}
+
 function completeWave() {
   saveBestWave();
-  state.gold += 18 + state.wave * 2;
+  addGold(18 + state.wave * 2);
 
   if (isBossWave()) {
     setMessage("bossDefeated", 3);
@@ -412,14 +546,33 @@ function startNextWave() {
   state.wave++;
   saveBestWave();
   state.spawnedEnemies = 0;
-  state.enemiesToSpawn = isBossWave() ? 1 : 8 + state.wave * 3;
+  state.enemiesToSpawn = getWaveEnemyCount(state.wave);
   state.spawnTimer = 1.1;
+  updateWavePreview();
 
   if (isBossWave()) {
-    setMessage("bossIncoming", 3, { wave: state.wave });
+    const boss = getBossForWave(state.wave);
+    setMessage("bossIncoming", 3, { wave: state.wave, boss: bossName(boss.id) });
   } else {
     setMessage("nextWave", 2.2, { wave: state.wave });
   }
+}
+
+function updateWavePreview() {
+  const wave = state.wave;
+  ui.previewTitle.textContent = `${t("wave")} ${wave}`;
+
+  if (isBossWave(wave)) {
+    const boss = getBossForWave(wave);
+    ui.previewDetails.textContent = `${t("previewBoss")}: ${bossName(boss.id)} | ${t("previewReward")}: ${boss.reward + Math.floor(wave * 8)} ${t("goldCost")}`;
+    return;
+  }
+
+  const names = getAvailableEnemyTypes(wave)
+    .slice(-4)
+    .map(type => enemyName(type.id))
+    .join(", ");
+  ui.previewDetails.textContent = `${t("previewEnemies")}: ${names} | ${t("previewReward")}: ${18 + wave * 2} ${t("goldCost")}`;
 }
 
 function updateWave(dt) {
@@ -429,7 +582,7 @@ function updateWave(dt) {
     if (state.spawnTimer <= 0) {
       spawnEnemy();
       state.spawnedEnemies++;
-      state.spawnTimer = Math.max(0.28, 0.92 - state.wave * 0.035);
+      state.spawnTimer = Math.max(0.25, 0.9 - state.wave * 0.035);
     }
   }
 
@@ -457,13 +610,22 @@ function shoot() {
   const target = getTarget();
   if (!target) return;
 
+  const colors = {
+    arcane: "#8be9fd",
+    fire: "#ff7a45",
+    ice: "#8be9fd",
+    lightning: "#f8f871"
+  };
+
   state.bullets.push({
     x: tower.x,
     y: tower.y,
     target,
     speed: 460,
     damage: tower.damage,
-    radius: 4
+    radius: 4,
+    mode: state.projectileMode,
+    color: colors[state.projectileMode]
   });
 }
 
@@ -475,12 +637,90 @@ function updateTower(dt) {
   }
 }
 
+function damageEnemy(enemy, amount, options = {}) {
+  let finalDamage = amount;
+
+  if (enemy.shield > 0) {
+    const blocked = Math.min(enemy.shield, finalDamage);
+    enemy.shield -= blocked;
+    finalDamage -= blocked;
+    createParticles(enemy.x, enemy.y, "#7aa2ff", 5);
+  }
+
+  if (finalDamage > 0) enemy.hp -= finalDamage;
+
+  if (options.mode === "fire") {
+    enemy.burnTimer = 2.6;
+    enemy.burnDps = Math.max(enemy.burnDps, tower.damage * 0.28);
+  }
+
+  if (options.mode === "ice") {
+    enemy.slowTimer = 2;
+    enemy.slowFactor = 0.52;
+  }
+
+  if (options.mode === "lightning") {
+    chainLightning(enemy, amount * 0.45);
+  }
+}
+
+function chainLightning(source, damage) {
+  const target = state.enemies
+    .filter(enemy => enemy !== source && enemy.hp > 0 && distance(source, enemy) < 115)
+    .sort((a, b) => distance(source, a) - distance(source, b))[0];
+
+  if (!target) return;
+  target.hp -= damage;
+  target.hitFlash = 0.12;
+  createParticles(target.x, target.y, "#f8f871", 12);
+}
+
+function updateEnemyEffects(enemy, dt) {
+  enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
+
+  if (enemy.burnTimer > 0) {
+    enemy.burnTimer -= dt;
+    enemy.hp -= enemy.burnDps * dt;
+    if (Math.random() < 0.25) createParticles(enemy.x, enemy.y, "#ff7a45", 1);
+  }
+
+  if (enemy.slowTimer > 0) {
+    enemy.slowTimer -= dt;
+    enemy.speed = enemy.baseSpeed * enemy.slowFactor;
+  } else {
+    enemy.speed = enemy.baseSpeed;
+  }
+
+  if (enemy.healer) {
+    enemy.healTimer -= dt;
+    if (enemy.healTimer <= 0) {
+      enemy.healTimer = 1.4;
+      for (const ally of state.enemies) {
+        if (ally !== enemy && ally.hp > 0 && distance(enemy, ally) < 95) {
+          ally.hp = Math.min(ally.maxHp, ally.hp + 8 + state.wave);
+          createParticles(ally.x, ally.y, "#83f28f", 3);
+        }
+      }
+    }
+  }
+
+  if (enemy.summoner) {
+    enemy.summonTimer -= dt;
+    if (enemy.summonTimer <= 0 && state.enemies.length < 42) {
+      enemy.summonTimer = 5;
+      state.enemies.push(createMinion(enemy.x + 22, enemy.y + 8), createMinion(enemy.x - 22, enemy.y - 8));
+      createParticles(enemy.x, enemy.y, "#b56bff", 18);
+    }
+  }
+}
+
 function updateEnemies(dt) {
   for (const enemy of state.enemies) {
+    updateEnemyEffects(enemy, dt);
+
     const angle = Math.atan2(tower.y - enemy.y, tower.x - enemy.x);
     enemy.x += Math.cos(angle) * enemy.speed * dt;
     enemy.y += Math.sin(angle) * enemy.speed * dt;
-    enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
 
     if (distance(enemy, tower) < tower.radius + enemy.size) {
       tower.hp -= enemy.damage;
@@ -491,17 +731,29 @@ function updateEnemies(dt) {
     }
   }
 
-  state.enemies = state.enemies.filter(enemy => {
-    if (enemy.hp > 0) return true;
-
-    if (distance(enemy, tower) >= tower.radius + enemy.size) {
-      state.gold += enemy.reward;
-      createParticles(enemy.x, enemy.y, "#ffd166", enemy.isBoss ? 28 : 10);
-      if (enemy.isBoss) screenShake(16);
+  const nextEnemies = [];
+  for (const enemy of state.enemies) {
+    if (enemy.hp > 0) {
+      nextEnemies.push(enemy);
+      continue;
     }
 
-    return false;
-  });
+    if (distance(enemy, tower) >= tower.radius + enemy.size) {
+      addGold(enemy.reward);
+      state.killed++;
+      if (enemy.isBoss) state.bossesKilled++;
+      createParticles(enemy.x, enemy.y, "#ffd166", enemy.isBoss ? 28 : 10);
+      if (enemy.isBoss) screenShake(16);
+
+      if (enemy.splits > 0) {
+        for (let i = 0; i < enemy.splits; i++) {
+          nextEnemies.push(createMinion(enemy.x + (i === 0 ? -12 : 12), enemy.y));
+        }
+      }
+    }
+  }
+
+  state.enemies = nextEnemies;
 
   if (tower.hp <= 0 && !state.gameOver) {
     tower.hp = 0;
@@ -523,10 +775,10 @@ function updateBullets(dt) {
     bullet.y += Math.sin(angle) * bullet.speed * dt;
 
     if (distance(bullet, bullet.target) < bullet.target.size + bullet.radius) {
-      bullet.target.hp -= bullet.damage;
+      damageEnemy(bullet.target, bullet.damage, { mode: bullet.mode });
       bullet.target.hitFlash = 0.08;
       bullet.remove = true;
-      createParticles(bullet.target.x, bullet.target.y, "#8be9fd", bullet.target.isBoss ? 8 : 4);
+      createParticles(bullet.target.x, bullet.target.y, bullet.color, bullet.target.isBoss ? 10 : 5);
     }
   }
 
@@ -625,6 +877,7 @@ function choosePerk(perk) {
   if (!state.choosingPerk) return;
 
   perk.apply();
+  state.perksTaken.push(localPerkText(perk, "title"));
   state.choosingPerk = false;
   hidePerkOverlay();
   setMessage("perkChosen", 2.4, { perk: localPerkText(perk, "title") });
@@ -633,7 +886,7 @@ function choosePerk(perk) {
 }
 
 function drawBackground() {
-  const waveDarkness = Math.min(0.18, state.wave * 0.008);
+  const waveDarkness = Math.min(0.2, state.wave * 0.008);
   const gradient = ctx.createRadialGradient(tower.x, tower.y, 40, tower.x, tower.y, 520);
   gradient.addColorStop(0, "#20243d");
   gradient.addColorStop(0.55, "#11182b");
@@ -690,7 +943,7 @@ function drawTower() {
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = "#ffd166";
+  ctx.fillStyle = projectileColor();
   ctx.beginPath();
   ctx.arc(0, -6, 7, 0, Math.PI * 2);
   ctx.fill();
@@ -700,15 +953,24 @@ function drawTower() {
   drawBar(tower.x - 52, tower.y + 54, 104, 8, tower.hp / tower.maxHp, "#ff5c7a", "#59d68d");
 }
 
+function projectileColor() {
+  return {
+    arcane: "#ffd166",
+    fire: "#ff7a45",
+    ice: "#8be9fd",
+    lightning: "#f8f871"
+  }[state.projectileMode];
+}
+
 function drawEnemy(enemy) {
   ctx.save();
   ctx.translate(enemy.x, enemy.y);
 
   ctx.fillStyle = enemy.hitFlash > 0 ? "#ffffff" : enemy.color;
-  ctx.strokeStyle = enemy.isBoss ? "#ffd166" : "#090d18";
+  ctx.strokeStyle = enemy.shield > 0 ? "#dbe8ff" : enemy.isBoss ? "#ffd166" : "#090d18";
   ctx.lineWidth = enemy.isBoss ? 3 : 2;
 
-  if (enemy.icon === "boss") {
+  if (enemy.isBoss) {
     ctx.beginPath();
     ctx.moveTo(0, -enemy.size - 12);
     ctx.lineTo(enemy.size + 16, -4);
@@ -719,12 +981,12 @@ function drawEnemy(enemy) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-  } else if (enemy.icon === "brute") {
+  } else if (enemy.icon === "brute" || enemy.icon === "shield") {
     ctx.beginPath();
     ctx.rect(-enemy.size, -enemy.size, enemy.size * 2, enemy.size * 2);
     ctx.fill();
     ctx.stroke();
-  } else if (enemy.icon === "shade") {
+  } else if (enemy.icon === "shade" || enemy.icon === "healer") {
     ctx.beginPath();
     ctx.moveTo(0, -enemy.size - 4);
     ctx.lineTo(enemy.size + 6, 0);
@@ -740,11 +1002,28 @@ function drawEnemy(enemy) {
     ctx.stroke();
   }
 
+  if (enemy.healer) {
+    ctx.strokeStyle = "#e8ffd8";
+    ctx.beginPath();
+    ctx.moveTo(-5, 0);
+    ctx.lineTo(5, 0);
+    ctx.moveTo(0, -5);
+    ctx.lineTo(0, 5);
+    ctx.stroke();
+  }
+
   ctx.fillStyle = "#090d18";
   ctx.beginPath();
   ctx.arc(-enemy.size * 0.35, -enemy.size * 0.15, enemy.isBoss ? 3.2 : 1.8, 0, Math.PI * 2);
   ctx.arc(enemy.size * 0.35, -enemy.size * 0.15, enemy.isBoss ? 3.2 : 1.8, 0, Math.PI * 2);
   ctx.fill();
+
+  if (enemy.burnTimer > 0 || enemy.slowTimer > 0) {
+    ctx.strokeStyle = enemy.burnTimer > 0 ? "#ff7a45" : "#8be9fd";
+    ctx.beginPath();
+    ctx.arc(0, 0, enemy.size + 6, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 
   ctx.restore();
 
@@ -762,8 +1041,8 @@ function drawBar(x, y, width, height, ratio, backColor, frontColor) {
 
 function drawBullets() {
   for (const bullet of state.bullets) {
-    ctx.fillStyle = "#8be9fd";
-    ctx.shadowColor = "#8be9fd";
+    ctx.fillStyle = bullet.color;
+    ctx.shadowColor = bullet.color;
     ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
@@ -786,14 +1065,31 @@ function drawParticles() {
 function drawGameOverlay() {
   if (!state.gameOver && !state.paused) return;
 
-  ctx.fillStyle = "rgba(5, 8, 15, 0.72)";
+  ctx.fillStyle = "rgba(5, 8, 15, 0.76)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#ffffff";
   ctx.textAlign = "center";
   ctx.font = "700 42px Arial";
-  ctx.fillText(state.gameOver ? t("gameOverTitle") : t("paused"), canvas.width / 2, canvas.height / 2 - 20);
+  ctx.fillText(state.gameOver ? t("gameOverTitle") : t("paused"), canvas.width / 2, canvas.height / 2 - 86);
   ctx.font = "18px Arial";
-  ctx.fillText(state.gameOver ? t("gameOverHelp") : t("resume"), canvas.width / 2, canvas.height / 2 + 22);
+  ctx.fillText(state.gameOver ? t("gameOverHelp") : t("resume"), canvas.width / 2, canvas.height / 2 - 48);
+
+  if (state.gameOver) {
+    const stats = [
+      `${t("wave")}: ${state.wave}`,
+      `${t("bestWave")}: ${state.bestWave}`,
+      `${t("kills")}: ${state.killed}`,
+      `${t("bosses")}: ${state.bossesKilled}`,
+      `${t("earned")}: ${state.goldEarned}`,
+      `${t("projectile")}: ${t(state.projectileMode)}`,
+      `${t("perks")}: ${state.perksTaken.length ? state.perksTaken.join(", ") : t("none")}`
+    ];
+
+    ctx.font = "16px Arial";
+    stats.forEach((line, index) => {
+      ctx.fillText(line, canvas.width / 2, canvas.height / 2 - 8 + index * 26);
+    });
+  }
 }
 
 function render() {
@@ -836,7 +1132,7 @@ function updateUI() {
   const locked = state.gameOver || state.paused || state.choosingPerk;
   ui.damageBtn.disabled = state.gold < upgrades.damage.cost || locked;
   ui.rateBtn.disabled = state.gold < upgrades.rate.cost || tower.fireRate <= 0.18 || locked;
-  ui.rangeBtn.disabled = state.gold < upgrades.range.cost || tower.range >= 390 || locked;
+  ui.rangeBtn.disabled = state.gold < upgrades.range.cost || tower.range >= 410 || locked;
   ui.repairBtn.disabled = state.gold < upgrades.repair.cost || tower.hp >= tower.maxHp || locked;
   ui.meteorBtn.disabled = state.meteorCooldown > 0 || locked;
   ui.pauseBtn.disabled = state.gameOver || state.choosingPerk;
@@ -862,7 +1158,7 @@ function buyUpgrade(kind) {
   }
 
   if (kind === "range") {
-    tower.range = Math.min(390, tower.range + upgrade.value);
+    tower.range = Math.min(410, tower.range + upgrade.value);
     upgrade.cost += 24 + upgrade.level * 5;
     setMessage("rangeUp", 2.2, { range: tower.range });
   }
@@ -880,7 +1176,7 @@ function castMeteor() {
   if (state.meteorCooldown > 0 || state.gameOver || state.paused || state.choosingPerk) return;
 
   for (const enemy of state.enemies) {
-    enemy.hp -= 90 + state.wave * 18;
+    damageEnemy(enemy, 90 + state.wave * 18);
     createParticles(enemy.x, enemy.y, "#ff7a45", enemy.isBoss ? 28 : 16);
   }
 
