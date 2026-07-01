@@ -178,6 +178,35 @@ canvas {
   color: var(--cyan);
 }
 
+.wave-preview {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(15, 20, 32, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.wave-preview strong {
+  display: block;
+  color: var(--text);
+  font-size: 20px;
+}
+
+.wave-preview p {
+  margin: 0;
+}
+
+#previewDetails {
+  color: var(--muted);
+  line-height: 1.4;
+  text-align: right;
+}
+
 .controls {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -290,6 +319,15 @@ button:disabled {
 
   .controls {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wave-preview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #previewDetails {
+    text-align: left;
   }
 
   .pause-btn {
