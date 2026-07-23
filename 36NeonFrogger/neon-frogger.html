@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+  <title>Neon Frogger</title>
+
+  <style>
+    :root {
+      --bg: #040711;
+      --panel: rgba(8, 15, 35, 0.9);
+      --cyan: #00f7ff;
+      --green: #39ff88;
+      --pink: #ff3cac;
+      --yellow: #ffe600;
+      --purple: #9d4edd;
+      --danger: #ff3158;
+      --text: #f4fbff;
+      --muted: #8ba3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      overflow-x: hidden;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(0, 247, 255, 0.11), transparent 35%),
+        radial-gradient(circle at 80% 70%, rgba(255, 60, 172, 0.1), transparent 35%),
+        linear-gradient(145deg, #02040b, #071022 55%, #02040b);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .game-shell {
+      width: min(100%, 760px);
+    }
+
+    .title-area {
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .title-area h1 {
+      font-size: clamp(2rem, 7vw, 4rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--green);
+      text-shadow:
+        0 0 8px rgba(57, 255, 136, 0.95),
+        0 0 24px rgba(57, 255, 136, 0.55);
+    }
+
+    .title-area p {
+      margin-top: 6px;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .hud-card {
+      min-width: 0;
+      padding: 10px 8px;
+      text-align: center;
+      background: var(--panel);
+      border: 1px solid rgba(0, 247, 255, 0.28);
+      border-radius: 12px;
+      box-shadow:
+        inset 0 0 16px rgba(0, 247, 255, 0.04),
+        0 0 12px rgba(0, 247, 255, 0.05);
+    }
+
+    .hud-card span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 0.65rem;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hud-card strong {
+      display: block;
+      overflow: hidden;
+      color: var(--cyan);
+      font-size: clamp(0.85rem, 3vw, 1.15rem);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow: 0 0 8px rgba(0, 247, 255, 0.65);
+    }
+
+    .time-panel {
+      margin-bottom: 10px;
+      height: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    #timeBar {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      box-shadow: 0 0 12px rgba(57, 255, 136, 0.8);
+      transition: width 0.1s linear;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(0, 247, 255, 0.45);
+      border-radius: 18px;
+      background: #030714;
+      box-shadow:
+        0 0 12px rgba(0, 247, 255, 0.3),
+        0 0 35px rgba(0, 247, 255, 0.1),
+        inset 0 0 30px rgba(0, 247, 255, 0.05);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 13 / 15;
+      touch-action: none;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: rgba(1, 5, 14, 0.8);
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-card {
+      width: min(100%, 430px);
+      padding: 26px;
+      text-align: center;
+      border: 1px solid rgba(0, 247, 255, 0.38);
+      border-radius: 20px;
+      background:
+        linear-gradient(145deg, rgba(11, 23, 48, 0.96), rgba(4, 8, 22, 0.96));
+      box-shadow:
+        0 0 32px rgba(0, 247, 255, 0.15),
+        inset 0 0 25px rgba(0, 247, 255, 0.04);
+    }
+
+    .overlay-icon {
+      margin-bottom: 8px;
+      font-size: 3.4rem;
+      filter: drop-shadow(0 0 10px rgba(57, 255, 136, 0.8));
+    }
+
+    .overlay-card h2 {
+      margin-bottom: 10px;
+      color: var(--green);
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(57, 255, 136, 0.65);
+    }
+
+    .overlay-card p {
+      margin-bottom: 18px;
+      color: #c5d5e2;
+      line-height: 1.55;
+    }
+
+    .instructions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin: 18px 0;
+      text-align: left;
+    }
+
+    .instruction {
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.035);
+      color: #c8d7e4;
+      font-size: 0.82rem;
+    }
+
+    .instruction b {
+      color: var(--cyan);
+    }
+
+    .primary-button,
+    .secondary-button {
+      padding: 12px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .primary-button {
+      color: #00160b;
+      border: none;
+      background: linear-gradient(135deg, var(--green), var(--cyan));
+      box-shadow: 0 0 20px rgba(57, 255, 136, 0.35);
+    }
+
+    .secondary-button {
+      color: var(--cyan);
+      border: 1px solid rgba(0, 247, 255, 0.45);
+      background: rgba(0, 247, 255, 0.06);
+    }
+
+    .primary-button:hover,
+    .secondary-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .touch-controls {
+      display: none;
+      width: min(270px, 100%);
+      margin: 16px auto 0;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .touch-button {
+      min-height: 58px;
+      color: var(--cyan);
+      border: 1px solid rgba(0, 247, 255, 0.38);
+      border-radius: 14px;
+      background:
+        linear-gradient(145deg, rgba(12, 27, 52, 0.96), rgba(4, 9, 22, 0.96));
+      box-shadow:
+        inset 0 0 12px rgba(0, 247, 255, 0.04),
+        0 0 10px rgba(0, 247, 255, 0.05);
+      font-size: 1.45rem;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .touch-button:active {
+      transform: scale(0.95);
+      color: var(--green);
+      box-shadow: 0 0 18px rgba(57, 255, 136, 0.26);
+    }
+
+    .touch-button.up {
+      grid-column: 2;
+    }
+
+    .touch-button.left {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .touch-button.down {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .touch-button.right {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .bottom-info {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.6;
+    }
+
+    .power-status {
+      min-height: 24px;
+      margin-top: 8px;
+      text-align: center;
+      color: var(--yellow);
+      font-weight: bold;
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 10px rgba(255, 230, 0, 0.55);
+    }
+
+    @media (max-width: 700px), (pointer: coarse) {
+      body {
+        align-items: flex-start;
+        padding: 10px;
+      }
+
+      .touch-controls {
+        display: grid;
+      }
+
+      .title-area h1 {
+        font-size: 2rem;
+      }
+
+      .hud {
+        gap: 5px;
+      }
+
+      .hud-card {
+        padding: 8px 4px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .overlay-card {
+        padding: 20px 15px;
+      }
+
+      .instructions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game-shell">
+    <header class="title-area">
+      <h1>Neon Frogger</h1>
+      <p>Cross the neon city and conquer the river</p>
+    </header>
+
+    <section class="hud">
+      <div class="hud-card">
+        <span>Score</span>
+        <strong id="scoreValue">0</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Lives</span>
+        <strong id="livesValue">❤ ❤ ❤</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Level</span>
+        <strong id="levelValue">1</strong>
+      </div>
+
+      <div class="hud-card">
+        <span>Time</span>
+        <strong id="timeValue">45</strong>
+      </div>
+    </section>
+
+    <div class="time-panel">
+      <div id="timeBar"></div>
+    </div>
+
+    <section class="canvas-wrap">
+      <canvas id="gameCanvas" width="650" height="750"></canvas>
+
+      <div class="overlay" id="gameOverlay">
+        <div class="overlay-card">
+          <div class="overlay-icon" id="overlayIcon">🐸</div>
+          <h2 id="overlayTitle">Neon Frogger</h2>
+
+          <p id="overlayText">
+            Cross the road, ride the logs and fill all five neon homes.
+          </p>
+
+          <div class="instructions" id="instructions">
+            <div class="instruction"><b>Move:</b> Arrow keys / WASD</div>
+            <div class="instruction"><b>Pause:</b> P or Escape</div>
+            <div class="instruction"><b>Goal:</b> Fill all five homes</div>
+            <div class="instruction"><b>Avoid:</b> Cars and water</div>
+          </div>
+
+          <button class="primary-button" id="mainButton">Start Game</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="power-status" id="powerStatus"></div>
+
+    <div class="controls-row">
+      <button class="secondary-button" id="pauseButton">Pause</button>
+      <button class="secondary-button" id="restartButton">Restart</button>
+    </div>
+
+    <section class="touch-controls" aria-label="Touch controls">
+      <button class="touch-button up" data-direction="up">▲</button>
+      <button class="touch-button left" data-direction="left">◀</button>
+      <button class="touch-button down" data-direction="down">▼</button>
+      <button class="touch-button right" data-direction="right">▶</button>
+    </section>
+
+    <p class="bottom-info">
+      Use arrow keys or WASD. Reach an empty home before time runs out.
+    </p>
+  </main>
+
+  <script>
+    "use strict";
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const scoreValue = document.getElementById("scoreValue");
+    const livesValue = document.getElementById("livesValue");
+    const levelValue = document.getElementById("levelValue");
+    const timeValue = document.getElementById("timeValue");
+    const timeBar = document.getElementById("timeBar");
+    const powerStatus = document.getElementById("powerStatus");
+
+    const overlay = document.getElementById("gameOverlay");
+    const overlayIcon = document.getElementById("overlayIcon");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayText = document.getElementById("overlayText");
+    const instructions = document.getElementById("instructions");
+    const mainButton = document.getElementById("mainButton");
+
+    const pauseButton = document.getElementById("pauseButton");
+    const restartButton = document.getElementById("restartButton");
+
+    const WIDTH = canvas.width;
+    const HEIGHT = canvas.height;
+    const CELL = 50;
+    const COLS = WIDTH / CELL;
+    const ROWS = HEIGHT / CELL;
+
+    const GAME_TIME = 45;
+    const FROG_SIZE = 36;
+
+    const COLORS = {
+      cyan: "#00f7ff",
+      green: "#39ff88",
+      pink: "#ff3cac",
+      yellow: "#ffe600",
+      purple: "#9d4edd",
+      danger: "#ff3158",
+      orange: "#ff8c42",
+      blue: "#1976ff"
+    };
+
+    const laneTypes = [
+      "home",
+      "river",
+      "river",
+      "river",
+      "river",
+      "safe",
+      "road",
+      "road",
+      "road",
+      "road",
+      "road",
+      "safe",
+      "safe",
+      "safe",
+      "start"
+    ];
+
+    const homeColumns = [1, 3.5, 6, 8.5, 11];
+
+    let state = "menu";
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let timeLeft = GAME_TIME;
+    let lastTimestamp = 0;
+    let timerAccumulator = 0;
+    let animationFrameId = null;
+
+    let obstacles = [];
+    let particles = [];
+    let powerUps = [];
+    let filledHomes = [];
+
+    let shieldActive = false;
+    let slowMotionEnd = 0;
+    let doubleScoreEnd = 0;
+    let invincibleEnd = 0;
+
+    const frog = {
+      x: WIDTH / 2 - FROG_SIZE / 2,
+      y: HEIGHT - CELL + (CELL - FROG_SIZE) / 2,
+      width: FROG_SIZE,
+      height: FROG_SIZE,
+      row: ROWS - 1,
+      column: Math.floor(COLS / 2),
+      onPlatform: null,
+      facing: "up",
+      hopProgress: 0
+    };
+
+    class Obstacle {
+      constructor(options) {
+        this.x = options.x;
+        this.y = options.y;
+        this.width = options.width;
+        this.height = options.height;
+        this.speed = options.speed;
+        this.type = options.type;
+        this.color = options.color;
+        this.direction = Math.sign(this.speed) || 1;
+        this.submergeTimer = Math.random() * 4;
+        this.submerged = false;
+      }
+
+      update(deltaTime) {
+        const slowMultiplier = performance.now() < slowMotionEnd ? 0.48 : 1;
+        this.x += this.speed * slowMultiplier * deltaTime;
+
+        if (this.speed > 0 && this.x > WIDTH + this.width) {
+          this.x = -this.width - Math.random() * 100;
+        }
+
+        if (this.speed < 0 && this.x + this.width < -this.width) {
+          this.x = WIDTH + Math.random() * 100;
+        }
+
+        if (this.type === "turtle") {
+          this.submergeTimer += deltaTime;
+
+          const cycle = this.submergeTimer % 6;
+          this.submerged = cycle > 4.7;
+        }
+      }
+
+      draw() {
+        if (this.type === "car" || this.type === "truck") {
+          drawVehicle(this);
+          return;
+        }
+
+        if (this.type === "log") {
+          drawLog(this);
+          return;
+        }
+
+        if (this.type === "turtle") {
+          drawTurtles(this);
+        }
+      }
+
+      get hitbox() {
+        const padding = this.type === "car" ? 5 : 2;
+
+        return {
+          x: this.x + padding,
+          y: this.y + padding,
+          width: this.width - padding * 2,
+          height: this.height - padding * 2
+        };
+      }
+    }
+
+    class Particle {
+      constructor(x, y, color, options = {}) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = options.speed ?? 80 + Math.random() * 150;
+
+        this.x = x;
+        this.y = y;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.radius = options.radius ?? 2 + Math.random() * 4;
+        this.life = options.life ?? 0.6 + Math.random() * 0.6;
+        this.maxLife = this.life;
+        this.color = color;
+        this.gravity = options.gravity ?? 50;
+      }
+
+      update(deltaTime) {
+        this.x += this.vx * deltaTime;
+        this.y += this.vy * deltaTime;
+        this.vy += this.gravity * deltaTime;
+        this.life -= deltaTime;
+      }
+
+      draw() {
+        if (this.life <= 0) {
+          return;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    class PowerUp {
+      constructor(type, x, y) {
+        this.type = type;
+        this.x = x;
+        this.y = y;
+        this.width = 30;
+        this.height = 30;
+        this.pulse = Math.random() * Math.PI * 2;
+      }
+
+      update(deltaTime) {
+        this.pulse += deltaTime * 4;
+      }
+
+      draw() {
+        const config = getPowerUpConfig(this.type);
+        const scale = 1 + Math.sin(this.pulse) * 0.08;
+
+        ctx.save();
+        ctx.translate(
+          this.x + this.width / 2,
+          this.y + this.height / 2
+        );
+        ctx.scale(scale, scale);
+
+        ctx.fillStyle = "rgba(5, 12, 28, 0.9)";
+        ctx.strokeStyle = config.color;
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = config.color;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "18px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(config.icon, 0, 1);
+
+        ctx.restore();
+      }
+    }
+
+    function createLevel() {
+      obstacles = [];
+      powerUps = [];
+      particles = [];
+
+      const speedMultiplier = 1 + (level - 1) * 0.12;
+
+      createRoadLane(10, -90 * speedMultiplier, "car", COLORS.pink, [
+        { x: 40, width: 68 },
+        { x: 280, width: 68 },
+        { x: 520, width: 68 }
+      ]);
+
+      createRoadLane(9, 120 * speedMultiplier, "truck", COLORS.yellow, [
+        { x: -60, width: 112 },
+        { x: 310, width: 112 }
+      ]);
+
+      createRoadLane(8, -145 * speedMultiplier, "car", COLORS.cyan, [
+        { x: 80, width: 62 },
+        { x: 250, width: 62 },
+        { x: 470, width: 62 }
+      ]);
+
+      createRoadLane(7, 105 * speedMultiplier, "car", COLORS.purple, [
+        { x: -30, width: 72 },
+        { x: 210, width: 72 },
+        { x: 470, width: 72 }
+      ]);
+
+      createRoadLane(6, -130 * speedMultiplier, "truck", COLORS.orange, [
+        { x: 100, width: 105 },
+        { x: 470, width: 105 }
+      ]);
+
+      createRiverLane(4, 72 * speedMultiplier, "log", [
+        { x: -20, width: 150 },
+        { x: 230, width: 130 },
+        { x: 470, width: 155 }
+      ]);
+
+      createRiverLane(3, -86 * speedMultiplier, "turtle", [
+        { x: 30, width: 115 },
+        { x: 260, width: 115 },
+        { x: 510, width: 115 }
+      ]);
+
+      createRiverLane(2, 98 * speedMultiplier, "log", [
+        { x: -80, width: 180 },
+        { x: 220, width: 145 },
+        { x: 510, width: 170 }
+      ]);
+
+      createRiverLane(1, -75 * speedMultiplier, "turtle", [
+        { x: 80, width: 125 },
+        { x: 360, width: 125 },
+        { x: 630, width: 125 }
+      ]);
+
+      spawnPowerUps();
+    }
+
+    function createRoadLane(row, speed, type, color, entries) {
+      const y = row * CELL + 7;
+
+      for (const entry of entries) {
+        obstacles.push(new Obstacle({
+          x: entry.x,
+          y,
+          width: entry.width,
+          height: CELL - 14,
+          speed,
+          type,
+          color
+        }));
+      }
+    }
+
+    function createRiverLane(row, speed, type, entries) {
+      const y = row * CELL + 7;
+
+      for (const entry of entries) {
+        obstacles.push(new Obstacle({
+          x: entry.x,
+          y,
+          width: entry.width,
+          height: CELL - 14,
+          speed,
+          type,
+          color: type === "log" ? COLORS.orange : COLORS.green
+        }));
+      }
+    }
+
+    function spawnPowerUps() {
+      const types = ["shield", "slow", "double"];
+
+      for (let i = 0; i < 2; i++) {
+        const safeRows = [5, 11, 12, 13];
+        const row = safeRows[Math.floor(Math.random() * safeRows.length)];
+        const column = 1 + Math.floor(Math.random() * 11);
+
+        powerUps.push(new PowerUp(
+          types[Math.floor(Math.random() * types.length)],
+          column * CELL + 10,
+          row * CELL + 10
+        ));
+      }
+    }
+
+    function resetGame() {
+      score = 0;
+      lives = 3;
+      level = 1;
+      filledHomes = [];
+
+      shieldActive = false;
+      slowMotionEnd = 0;
+      doubleScoreEnd = 0;
+      invincibleEnd = 0;
+
+      createLevel();
+      resetFrog();
+      resetTimer();
+      updateHUD();
+    }
+
+    function resetFrog() {
+      frog.row = ROWS - 1;
+      frog.column = Math.floor(COLS / 2);
+      frog.x = frog.column * CELL + (CELL - FROG_SIZE) / 2;
+      frog.y = frog.row * CELL + (CELL - FROG_SIZE) / 2;
+      frog.onPlatform = null;
+      frog.facing = "up";
+      frog.hopProgress = 0;
+    }
+
+    function resetTimer() {
+      timeLeft = Math.max(24, GAME_TIME - (level - 1) * 2);
+      timerAccumulator = 0;
+    }
+
+    function startGame() {
+      resetGame();
+      state = "playing";
+      hideOverlay();
+      pauseButton.textContent = "Pause";
+
+      lastTimestamp = performance.now();
+
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+
+      animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    function togglePause() {
+      if (state === "menu" || state === "gameover") {
+        return;
+      }
+
+      if (state === "paused") {
+        state = "playing";
+        hideOverlay();
+        pauseButton.textContent = "Pause";
+        lastTimestamp = performance.now();
+        animationFrameId = requestAnimationFrame(gameLoop);
+      } else if (state === "playing") {
+        state = "paused";
+        pauseButton.textContent = "Resume";
+
+        showOverlay({
+          icon: "⏸️",
+          title: "Paused",
+          text: "The neon city is waiting.",
+          button: "Resume",
+          showInstructions: false
+        });
+      }
+    }
+
+    function gameLoop(timestamp) {
+      if (state !== "playing") {
+        return;
+      }
+
+      const deltaTime = Math.min((timestamp - lastTimestamp) / 1000, 0.04);
+      lastTimestamp = timestamp;
+
+      update(deltaTime);
+      draw();
+
+      animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function update(deltaTime) {
+      timerAccumulator += deltaTime;
+
+      if (timerAccumulator >= 0.1) {
+        timeLeft -= timerAccumulator;
+        timerAccumulator = 0;
+
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          loseLife("time");
+        }
+      }
+
+      for (const obstacle of obstacles) {
+        obstacle.update(deltaTime);
+      }
+
+      for (const particle of particles) {
+        particle.update(deltaTime);
+      }
+
+      particles = particles.filter((particle) => particle.life > 0);
+
+      for (const powerUp of powerUps) {
+        powerUp.update(deltaTime);
+      }
+
+      updateFrogPlatform(deltaTime);
+      detectCollisions();
+      detectPowerUps();
+      updatePowerStatus();
+      updateHUD();
+    }
+
+    function updateFrogPlatform() {
+      frog.onPlatform = null;
+
+      if (!isRiverRow(frog.row)) {
+        return;
+      }
+
+      const frogBox = getFrogHitbox();
+      const platforms = obstacles.filter((obstacle) => {
+        return (
+          obstacle.type === "log" ||
+          (obstacle.type === "turtle" && !obstacle.submerged)
+        );
+      });
+
+      for (const platform of platforms) {
+        if (rectanglesOverlap(frogBox, platform.hitbox)) {
+          frog.onPlatform = platform;
+
+          const slowMultiplier =
+            performance.now() < slowMotionEnd ? 0.48 : 1;
+
+          frog.x += platform.speed * slowMultiplier / 60;
+
+          if (frog.x + frog.width < 0 || frog.x > WIDTH) {
+            loseLife("water");
+          }
+
+          return;
+        }
+      }
+
+      loseLife("water");
+    }
+
+    function detectCollisions() {
+      if (
+        performance.now() < invincibleEnd ||
+        state !== "playing"
+      ) {
+        return;
+      }
+
+      if (!isRoadRow(frog.row)) {
+        return;
+      }
+
+      const frogBox = getFrogHitbox();
+
+      for (const obstacle of obstacles) {
+        if (
+          (obstacle.type === "car" || obstacle.type === "truck") &&
+          rectanglesOverlap(frogBox, obstacle.hitbox)
+        ) {
+          if (shieldActive) {
+            shieldActive = false;
+            invincibleEnd = performance.now() + 1300;
+            createBurst(
+              frog.x + frog.width / 2,
+              frog.y + frog.height / 2,
+              COLORS.cyan,
+              18
+            );
+            return;
+          }
+
+          loseLife("crash");
+          return;
+        }
+      }
+    }
+
+    function detectPowerUps() {
+      const frogBox = getFrogHitbox();
+
+      powerUps = powerUps.filter((powerUp) => {
+        const box = {
+          x: powerUp.x,
+          y: powerUp.y,
+          width: powerUp.width,
+          height: powerUp.height
+        };
+
+        if (!rectanglesOverlap(frogBox, box)) {
+          return true;
+        }
+
+        activatePowerUp(powerUp.type);
+        createBurst(
+          powerUp.x + powerUp.width / 2,
+          powerUp.y + powerUp.height / 2,
+          getPowerUpConfig(powerUp.type).color,
+          20
+        );
+
+        addScore(200);
+        return false;
+      });
+    }
+
+    function activatePowerUp(type) {
+      const now = performance.now();
+
+      if (type === "shield") {
+        shieldActive = true;
+      }
+
+      if (type === "slow") {
+        slowMotionEnd = now + 6000;
+      }
+
+      if (type === "double") {
+        doubleScoreEnd = now + 7000;
+      }
+    }
+
+    function moveFrog(direction) {
+        if (state !== "playing") {
+            return;
+        }
+
+        const previousRow = frog.row;
+
+        let nextRow = frog.row;
+        let nextX = frog.x;
+
+        if (direction === "up") {
+            nextRow -= 1;
+        }
+
+        if (direction === "down") {
+            nextRow += 1;
+        }
+
+        if (direction === "left") {
+            nextX -= CELL;
+        }
+
+        if (direction === "right") {
+            nextX += CELL;
+        }
+
+        // Kontrola horního a dolního okraje
+        if (nextRow < 0 || nextRow >= ROWS) {
+            return;
+        }
+
+        // Kontrola levého a pravého okraje
+        nextX = Math.max(
+            (CELL - FROG_SIZE) / 2,
+            Math.min(
+            WIDTH - FROG_SIZE - (CELL - FROG_SIZE) / 2,
+            nextX
+            )
+        );
+
+        frog.row = nextRow;
+        frog.x = nextX;
+        frog.y =
+            frog.row * CELL +
+            (CELL - FROG_SIZE) / 2;
+
+        // Aktualizace sloupce podle skutečné pozice žáby
+        frog.column = Math.round(
+            (frog.x - (CELL - FROG_SIZE) / 2) / CELL
+        );
+
+        frog.facing = direction;
+        frog.hopProgress = 1;
+        frog.onPlatform = null;
+
+        createBurst(
+            frog.x + frog.width / 2,
+            frog.y + frog.height / 2,
+            COLORS.green,
+            5,
+            {
+            speed: 55,
+            life: 0.28,
+            radius: 2
+            }
+        );
+
+        if (direction === "up" && frog.row < previousRow) {
+            addScore(10);
+        }
+
+        if (frog.row === 0) {
+            checkHome();
+            return;
+        }
+
+        if (isRiverRow(frog.row)) {
+            checkRiverLanding();
+            return;
+        }
+
+        detectCollisions();
+        detectPowerUps();
+        }
+
+    function checkHome() {
+      const frogCenter = frog.x + frog.width / 2;
+
+      let closestHome = -1;
+      let closestDistance = Infinity;
+
+      for (let i = 0; i < homeColumns.length; i++) {
+        const homeCenter = homeColumns[i] * CELL;
+        const distance = Math.abs(frogCenter - homeCenter);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestHome = i;
+        }
+      }
+
+      if (
+        closestHome === -1 ||
+        closestDistance > CELL * 0.6 ||
+        filledHomes.includes(closestHome)
+      ) {
+        loseLife("miss");
+        return;
+      }
+
+      filledHomes.push(closestHome);
+
+      createBurst(
+        homeColumns[closestHome] * CELL,
+        CELL / 2,
+        COLORS.green,
+        28
+      );
+
+      addScore(500 + Math.floor(timeLeft) * 10);
+
+      if (filledHomes.length >= homeColumns.length) {
+        completeLevel();
+      } else {
+        resetFrog();
+        resetTimer();
+      }
+    }
+
+    function completeLevel() {
+      addScore(1000 * level);
+      level += 1;
+
+      state = "paused";
+
+      showOverlay({
+        icon: "🏆",
+        title: "Level Complete",
+        text: `All homes are safe! Get ready for Level ${level}.`,
+        button: "Next Level",
+        showInstructions: false
+      });
+
+      mainButton.onclick = () => {
+        filledHomes = [];
+        createLevel();
+        resetFrog();
+        resetTimer();
+
+        state = "playing";
+        hideOverlay();
+        lastTimestamp = performance.now();
+        animationFrameId = requestAnimationFrame(gameLoop);
+      };
+    }
+
+    function loseLife(reason) {
+        if (state !== "playing") {
+            return;
+        }
+
+        state = "recovering";
+
+        const burstColor =
+            reason === "water" ? COLORS.cyan : COLORS.danger;
+
+        createBurst(
+            frog.x + frog.width / 2,
+            frog.y + frog.height / 2,
+            burstColor,
+            28,
+            {
+            speed: 190,
+            life: 0.85,
+            radius: 4
+            }
+        );
+
+        lives -= 1;
+        updateHUD();
+
+        if (lives <= 0) {
+            setTimeout(() => {
+            endGame();
+            }, 500);
+
+            return;
+        }
+
+        setTimeout(() => {
+            resetFrog();
+            resetTimer();
+
+            invincibleEnd = performance.now() + 900;
+            state = "playing";
+
+            // Znovu spustí herní smyčku po smrti
+            lastTimestamp = performance.now();
+
+            if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            }
+
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }, 550);
+    }
+
+    function endGame() {
+      state = "gameover";
+      pauseButton.textContent = "Pause";
+
+      showOverlay({
+        icon: "💀",
+        title: "Game Over",
+        text: `Final score: ${score.toLocaleString()} · Level reached: ${level}`,
+        button: "Play Again",
+        showInstructions: false
+      });
+
+      mainButton.onclick = startGame;
+    }
+
+    function addScore(amount) {
+      const multiplier =
+        performance.now() < doubleScoreEnd ? 2 : 1;
+
+      score += amount * multiplier;
+    }
+
+    function updateHUD() {
+      scoreValue.textContent = score.toLocaleString();
+      livesValue.textContent =
+        lives > 0 ? Array(lives).fill("❤").join(" ") : "—";
+      levelValue.textContent = String(level);
+      timeValue.textContent = String(Math.ceil(timeLeft));
+
+      const maxTime = Math.max(24, GAME_TIME - (level - 1) * 2);
+      const percentage = Math.max(0, (timeLeft / maxTime) * 100);
+
+      timeBar.style.width = `${percentage}%`;
+
+      if (percentage < 25) {
+        timeBar.style.background =
+          "linear-gradient(90deg, #ff3158, #ff8c42)";
+        timeBar.style.boxShadow =
+          "0 0 12px rgba(255, 49, 88, 0.85)";
+      } else {
+        timeBar.style.background =
+          "linear-gradient(90deg, #39ff88, #00f7ff)";
+        timeBar.style.boxShadow =
+          "0 0 12px rgba(57, 255, 136, 0.8)";
+      }
+    }
+
+    function updatePowerStatus() {
+      const now = performance.now();
+      const active = [];
+
+      if (shieldActive) {
+        active.push("🛡 Shield");
+      }
+
+      if (now < slowMotionEnd) {
+        active.push(
+          `⏱ Slow Motion ${Math.ceil((slowMotionEnd - now) / 1000)}s`
+        );
+      }
+
+      if (now < doubleScoreEnd) {
+        active.push(
+          `⭐ Double Score ${Math.ceil((doubleScoreEnd - now) / 1000)}s`
+        );
+      }
+
+      powerStatus.textContent = active.join("  •  ");
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      drawBackground();
+      drawHomes();
+
+      for (const obstacle of obstacles) {
+        obstacle.draw();
+      }
+
+      for (const powerUp of powerUps) {
+        powerUp.draw();
+      }
+
+      for (const particle of particles) {
+        particle.draw();
+      }
+
+      if (state !== "recovering") {
+        drawFrog();
+      }
+
+      drawLevelLabel();
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = "#030713";
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      for (let row = 0; row < ROWS; row++) {
+        const y = row * CELL;
+        const laneType = laneTypes[row];
+
+        if (laneType === "river") {
+          drawRiverLane(y, row);
+        } else if (laneType === "road") {
+          drawRoadLane(y, row);
+        } else if (laneType === "home") {
+          drawHomeLane(y);
+        } else {
+          drawSafeLane(y, row);
+        }
+      }
+
+      ctx.strokeStyle = "rgba(0, 247, 255, 0.055)";
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= WIDTH; x += CELL) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, HEIGHT);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= HEIGHT; y += CELL) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(WIDTH, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawRiverLane(y, row) {
+      const gradient = ctx.createLinearGradient(0, y, WIDTH, y + CELL);
+      gradient.addColorStop(0, "#031a35");
+      gradient.addColorStop(0.5, "#06335b");
+      gradient.addColorStop(1, "#031a35");
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, y, WIDTH, CELL);
+
+      const waveOffset =
+        (performance.now() * 0.03 * (row % 2 === 0 ? 1 : -1)) % 80;
+
+      ctx.strokeStyle = "rgba(0, 247, 255, 0.2)";
+      ctx.lineWidth = 2;
+
+      for (let x = -100; x < WIDTH + 100; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x + waveOffset, y + 15);
+        ctx.quadraticCurveTo(
+          x + 20 + waveOffset,
+          y + 8,
+          x + 40 + waveOffset,
+          y + 15
+        );
+        ctx.quadraticCurveTo(
+          x + 60 + waveOffset,
+          y + 22,
+          x + 80 + waveOffset,
+          y + 15
+        );
+        ctx.stroke();
+      }
+    }
+
+    function drawRoadLane(y, row) {
+      ctx.fillStyle = row % 2 === 0 ? "#101522" : "#0b101b";
+      ctx.fillRect(0, y, WIDTH, CELL);
+
+      ctx.strokeStyle = "rgba(255, 230, 0, 0.36)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([22, 18]);
+
+      ctx.beginPath();
+      ctx.moveTo(0, y + CELL / 2);
+      ctx.lineTo(WIDTH, y + CELL / 2);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+    }
+
+    function drawSafeLane(y, row) {
+      const gradient = ctx.createLinearGradient(0, y, 0, y + CELL);
+      gradient.addColorStop(0, "#09251e");
+      gradient.addColorStop(1, "#061a16");
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, y, WIDTH, CELL);
+
+      for (let x = 15; x < WIDTH; x += 42) {
+        const glow = 0.12 + Math.sin(x + row) * 0.03;
+
+        ctx.fillStyle = `rgba(57, 255, 136, ${glow})`;
+        ctx.beginPath();
+        ctx.arc(x, y + 18 + ((x / 7) % 14), 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawHomeLane(y) {
+      ctx.fillStyle = "#071a1b";
+      ctx.fillRect(0, y, WIDTH, CELL);
+
+      ctx.fillStyle = "rgba(57, 255, 136, 0.1)";
+
+      for (let x = 0; x < WIDTH; x += 28) {
+        ctx.beginPath();
+        ctx.arc(
+          x + 10,
+          y + 8 + (x % 21),
+          11,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+    }
+
+    function drawHomes() {
+      for (let i = 0; i < homeColumns.length; i++) {
+        const centerX = homeColumns[i] * CELL;
+        const filled = filledHomes.includes(i);
+
+        ctx.save();
+        ctx.translate(centerX, CELL / 2);
+
+        ctx.strokeStyle = filled ? COLORS.green : "rgba(0, 247, 255, 0.62)";
+        ctx.fillStyle = filled
+          ? "rgba(57, 255, 136, 0.18)"
+          : "rgba(0, 247, 255, 0.055)";
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = filled ? 22 : 12;
+        ctx.shadowColor = filled ? COLORS.green : COLORS.cyan;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        if (filled) {
+          ctx.font = "25px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("🐸", 0, 1);
+        } else {
+          ctx.fillStyle = "rgba(255,255,255,0.55)";
+          ctx.font = "18px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("⌂", 0, 1);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    function drawVehicle(vehicle) {
+      ctx.save();
+
+      const x = vehicle.x;
+      const y = vehicle.y;
+      const width = vehicle.width;
+      const height = vehicle.height;
+      const direction = vehicle.direction;
+
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = vehicle.color;
+      ctx.fillStyle = vehicle.color;
+
+      roundRect(ctx, x, y + 5, width, height - 10, 10);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(3, 7, 18, 0.82)";
+
+      const cabinWidth = vehicle.type === "truck"
+        ? width * 0.3
+        : width * 0.43;
+
+      const cabinX = direction > 0
+        ? x + width - cabinWidth - 8
+        : x + 8;
+
+      roundRect(
+        ctx,
+        cabinX,
+        y + 9,
+        cabinWidth,
+        height - 18,
+        7
+      );
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(0, 247, 255, 0.58)";
+      roundRect(
+        ctx,
+        cabinX + 4,
+        y + 12,
+        cabinWidth - 8,
+        height - 24,
+        4
+      );
+      ctx.fill();
+
+      ctx.fillStyle = "#02050c";
+
+      const wheelSize = 9;
+
+      ctx.beginPath();
+      ctx.arc(x + 15, y + height - 5, wheelSize, 0, Math.PI * 2);
+      ctx.arc(
+        x + width - 15,
+        y + height - 5,
+        wheelSize,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#ffffff";
+
+      const lightX = direction > 0 ? x + width - 3 : x + 3;
+
+      ctx.fillRect(lightX - 2, y + 10, 4, 8);
+      ctx.fillRect(lightX - 2, y + height - 18, 4, 8);
+
+      ctx.restore();
+    }
+
+    function drawLog(log) {
+      ctx.save();
+
+      ctx.fillStyle = "#a95824";
+      ctx.strokeStyle = COLORS.orange;
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 13;
+      ctx.shadowColor = COLORS.orange;
+
+      roundRect(
+        ctx,
+        log.x,
+        log.y + 4,
+        log.width,
+        log.height - 8,
+        18
+      );
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255, 210, 145, 0.42)";
+      ctx.lineWidth = 2;
+
+      for (let x = log.x + 20; x < log.x + log.width; x += 30) {
+        ctx.beginPath();
+        ctx.moveTo(x, log.y + 10);
+        ctx.lineTo(x - 8, log.y + log.height - 10);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawTurtles(turtle) {
+      if (turtle.submerged) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(57, 255, 136, 0.25)";
+        ctx.lineWidth = 2;
+
+        for (
+          let x = turtle.x + 18;
+          x < turtle.x + turtle.width;
+          x += 36
+        ) {
+          ctx.beginPath();
+          ctx.arc(x, turtle.y + turtle.height / 2, 12, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+        return;
+      }
+
+      ctx.save();
+
+      for (
+        let x = turtle.x + 18;
+        x < turtle.x + turtle.width;
+        x += 36
+      ) {
+        ctx.fillStyle = "#0f7f64";
+        ctx.strokeStyle = COLORS.green;
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = COLORS.green;
+
+        ctx.beginPath();
+        ctx.ellipse(
+          x,
+          turtle.y + turtle.height / 2,
+          15,
+          12,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = COLORS.green;
+
+        ctx.beginPath();
+        ctx.arc(
+          x + 16 * turtle.direction,
+          turtle.y + turtle.height / 2,
+          5,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(2, 15, 12, 0.65)";
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(x - 8, turtle.y + turtle.height / 2);
+        ctx.lineTo(x + 8, turtle.y + turtle.height / 2);
+        ctx.moveTo(x, turtle.y + turtle.height / 2 - 8);
+        ctx.lineTo(x, turtle.y + turtle.height / 2 + 8);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawFrog() {
+      const centerX = frog.x + frog.width / 2;
+      const centerY = frog.y + frog.height / 2;
+
+      let bounce = 0;
+
+      if (frog.hopProgress > 0) {
+        bounce = Math.sin(frog.hopProgress * Math.PI) * 5;
+        frog.hopProgress = Math.max(0, frog.hopProgress - 0.1);
+      }
+
+      ctx.save();
+      ctx.translate(centerX, centerY - bounce);
+
+      if (performance.now() < invincibleEnd) {
+        ctx.globalAlpha =
+          Math.floor(performance.now() / 100) % 2 === 0 ? 0.35 : 1;
+      }
+
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = COLORS.green;
+      ctx.fillStyle = COLORS.green;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 2, 14, 16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#1fbf67";
+
+      ctx.beginPath();
+      ctx.ellipse(-13, 8, 8, 5, -0.6, 0, Math.PI * 2);
+      ctx.ellipse(13, 8, 8, 5, 0.6, 0, Math.PI * 2);
+      ctx.ellipse(-11, -8, 7, 6, 0, 0, Math.PI * 2);
+      ctx.ellipse(11, -8, 7, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+
+      ctx.beginPath();
+      ctx.arc(-8, -10, 4, 0, Math.PI * 2);
+      ctx.arc(8, -10, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#06110c";
+
+      ctx.beginPath();
+      ctx.arc(-8, -10, 2, 0, Math.PI * 2);
+      ctx.arc(8, -10, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "#053b20";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 2, 7, 0.2, Math.PI - 0.2);
+      ctx.stroke();
+
+      if (shieldActive) {
+        ctx.strokeStyle = COLORS.cyan;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = COLORS.cyan;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawLevelLabel() {
+      ctx.save();
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.font = "bold 12px Arial";
+      ctx.textAlign = "right";
+      ctx.fillText(`LEVEL ${level}`, WIDTH - 12, HEIGHT - 12);
+
+      ctx.restore();
+    }
+
+    function createBurst(x, y, color, count, options = {}) {
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, color, options));
+      }
+    }
+
+    function getFrogHitbox() {
+      return {
+        x: frog.x + 5,
+        y: frog.y + 4,
+        width: frog.width - 10,
+        height: frog.height - 8
+      };
+    }
+
+    function rectanglesOverlap(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    function isRoadRow(row) {
+      return laneTypes[row] === "road";
+    }
+
+    function isRiverRow(row) {
+      return laneTypes[row] === "river";
+    }
+
+    function getPowerUpConfig(type) {
+      const configs = {
+        shield: {
+          icon: "🛡",
+          color: COLORS.cyan
+        },
+        slow: {
+          icon: "⏱",
+          color: COLORS.purple
+        },
+        double: {
+          icon: "★",
+          color: COLORS.yellow
+        }
+      };
+
+      return configs[type];
+    }
+
+    function roundRect(context, x, y, width, height, radius) {
+      const r = Math.min(radius, width / 2, height / 2);
+
+      context.beginPath();
+      context.moveTo(x + r, y);
+      context.lineTo(x + width - r, y);
+      context.quadraticCurveTo(x + width, y, x + width, y + r);
+      context.lineTo(x + width, y + height - r);
+      context.quadraticCurveTo(
+        x + width,
+        y + height,
+        x + width - r,
+        y + height
+      );
+      context.lineTo(x + r, y + height);
+      context.quadraticCurveTo(x, y + height, x, y + height - r);
+      context.lineTo(x, y + r);
+      context.quadraticCurveTo(x, y, x + r, y);
+      context.closePath();
+    }
+
+    function showOverlay({
+      icon,
+      title,
+      text,
+      button,
+      showInstructions
+    }) {
+      overlayIcon.textContent = icon;
+      overlayTitle.textContent = title;
+      overlayText.textContent = text;
+      mainButton.textContent = button;
+      instructions.style.display = showInstructions ? "grid" : "none";
+      overlay.classList.remove("hidden");
+    }
+
+    function hideOverlay() {
+      overlay.classList.add("hidden");
+    }
+
+    function handleKeyDown(event) {
+      const key = event.key.toLowerCase();
+
+      const movementKeys = [
+        "arrowup",
+        "arrowdown",
+        "arrowleft",
+        "arrowright",
+        "w",
+        "a",
+        "s",
+        "d"
+      ];
+
+      if (movementKeys.includes(key)) {
+        event.preventDefault();
+      }
+
+      if (key === "arrowup" || key === "w") {
+        moveFrog("up");
+      }
+
+      if (key === "arrowdown" || key === "s") {
+        moveFrog("down");
+      }
+
+      if (key === "arrowleft" || key === "a") {
+        moveFrog("left");
+      }
+
+      if (key === "arrowright" || key === "d") {
+        moveFrog("right");
+      }
+
+      if (key === "p" || key === "escape") {
+        togglePause();
+      }
+
+      if (key === "enter" && state === "gameover") {
+        startGame();
+      }
+    }
+
+    mainButton.addEventListener("click", () => {
+      if (state === "paused") {
+        togglePause();
+      } else {
+        startGame();
+      }
+    });
+
+    pauseButton.addEventListener("click", togglePause);
+    restartButton.addEventListener("click", restartGame);
+    window.addEventListener("keydown", handleKeyDown);
+
+    document.querySelectorAll(".touch-button").forEach((button) => {
+      button.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        moveFrog(button.dataset.direction);
+      });
+    });
+
+    window.addEventListener("blur", () => {
+      if (state === "playing") {
+        togglePause();
+      }
+    });
+
+    createLevel();
+    resetFrog();
+    updateHUD();
+    draw();
+  </script>
+</body>
+</html>
