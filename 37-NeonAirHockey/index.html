@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Neon Air Hockey</title>
+
+  <style>
+    :root {
+      --background: #02040d;
+      --panel: rgba(7, 14, 31, 0.94);
+      --cyan: #00f7ff;
+      --blue: #2d7cff;
+      --pink: #ff3cac;
+      --purple: #a855f7;
+      --green: #39ff88;
+      --yellow: #ffe600;
+      --red: #ff3158;
+      --white: #f4fbff;
+      --muted: #8ba3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 18px;
+      overflow-x: hidden;
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(
+          circle at 20% 20%,
+          rgba(0, 247, 255, 0.12),
+          transparent 34%
+        ),
+        radial-gradient(
+          circle at 80% 75%,
+          rgba(255, 60, 172, 0.11),
+          transparent 38%
+        ),
+        linear-gradient(145deg, #01030a, #071126 55%, #02040d);
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .game-shell {
+      width: min(100%, 820px);
+    }
+
+    .title-area {
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .title-area h1 {
+      color: var(--cyan);
+      font-size: clamp(2rem, 7vw, 4.2rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 8px rgba(0, 247, 255, 0.95),
+        0 0 26px rgba(0, 247, 255, 0.58);
+    }
+
+    .title-area p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .score-card,
+    .round-card {
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 247, 255, 0.27);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow:
+        inset 0 0 18px rgba(0, 247, 255, 0.035),
+        0 0 14px rgba(0, 247, 255, 0.06);
+    }
+
+    .score-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .score-card.player-one {
+      border-color: rgba(0, 247, 255, 0.4);
+    }
+
+    .score-card.player-two {
+      border-color: rgba(255, 60, 172, 0.4);
+    }
+
+    .player-label {
+      min-width: 0;
+    }
+
+    .player-label span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.65rem;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .player-label strong {
+      display: block;
+      overflow: hidden;
+      margin-top: 3px;
+      color: var(--cyan);
+      font-size: clamp(0.78rem, 3vw, 1.05rem);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player-two .player-label strong {
+      color: var(--pink);
+    }
+
+    .score-number {
+      margin-left: 10px;
+      color: var(--cyan);
+      font-size: clamp(1.8rem, 6vw, 3rem);
+      font-weight: bold;
+      line-height: 1;
+      text-shadow: 0 0 14px rgba(0, 247, 255, 0.8);
+    }
+
+    .player-two .score-number {
+      color: var(--pink);
+      text-shadow: 0 0 14px rgba(255, 60, 172, 0.8);
+    }
+
+    .round-card {
+      min-width: 108px;
+      text-align: center;
+    }
+
+    .round-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.62rem;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .round-card strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--yellow);
+      font-size: 1rem;
+      text-shadow: 0 0 9px rgba(255, 230, 0, 0.6);
+    }
+
+    .power-bars {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .power-panel {
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      background: rgba(7, 14, 31, 0.75);
+    }
+
+    .power-panel-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 0.67rem;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .power-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .power-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      transition: width 0.12s linear;
+    }
+
+    #playerPowerFill {
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      box-shadow: 0 0 12px rgba(0, 247, 255, 0.75);
+    }
+
+    #opponentPowerFill {
+      background: linear-gradient(90deg, var(--purple), var(--pink));
+      box-shadow: 0 0 12px rgba(255, 60, 172, 0.75);
+    }
+
+    .arena-wrap {
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(0, 247, 255, 0.45);
+      border-radius: 22px;
+      background: #020612;
+      box-shadow:
+        0 0 16px rgba(0, 247, 255, 0.28),
+        0 0 42px rgba(0, 247, 255, 0.1),
+        inset 0 0 40px rgba(0, 247, 255, 0.05);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      touch-action: none;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: rgba(1, 5, 14, 0.82);
+      backdrop-filter: blur(9px);
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-card {
+      width: min(100%, 470px);
+      padding: 26px;
+      text-align: center;
+      border: 1px solid rgba(0, 247, 255, 0.38);
+      border-radius: 22px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(11, 23, 48, 0.98),
+          rgba(4, 8, 22, 0.98)
+        );
+      box-shadow:
+        0 0 34px rgba(0, 247, 255, 0.17),
+        inset 0 0 25px rgba(0, 247, 255, 0.04);
+    }
+
+    .overlay-icon {
+      margin-bottom: 8px;
+      font-size: 3.3rem;
+      filter: drop-shadow(0 0 12px rgba(0, 247, 255, 0.75));
+    }
+
+    .overlay-card h2 {
+      margin-bottom: 10px;
+      color: var(--cyan);
+      font-size: clamp(1.8rem, 6vw, 2.8rem);
+      text-transform: uppercase;
+      text-shadow: 0 0 14px rgba(0, 247, 255, 0.65);
+    }
+
+    .overlay-card p {
+      color: #c8d8e5;
+      line-height: 1.55;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .menu-group {
+      text-align: left;
+    }
+
+    .menu-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.67rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .menu-group select {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--white);
+      border: 1px solid rgba(0, 247, 255, 0.32);
+      border-radius: 10px;
+      outline: none;
+      background: rgba(5, 13, 29, 0.95);
+    }
+
+    .instructions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 18px 0;
+      text-align: left;
+    }
+
+    .instruction {
+      padding: 10px;
+      color: #c8d8e5;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.035);
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    .instruction b {
+      color: var(--cyan);
+    }
+
+    .primary-button,
+    .secondary-button {
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .primary-button {
+      color: #001417;
+      border: none;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      box-shadow: 0 0 22px rgba(0, 247, 255, 0.32);
+    }
+
+    .secondary-button {
+      color: var(--cyan);
+      border: 1px solid rgba(0, 247, 255, 0.4);
+      background: rgba(0, 247, 255, 0.055);
+    }
+
+    .primary-button:hover,
+    .secondary-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .status-text {
+      min-height: 25px;
+      margin-top: 9px;
+      text-align: center;
+      color: var(--yellow);
+      font-weight: bold;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 10px rgba(255, 230, 0, 0.45);
+    }
+
+    .bottom-info {
+      margin-top: 10px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.76rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 10px;
+      }
+
+      .hud {
+        grid-template-columns: 1fr 76px 1fr;
+        gap: 5px;
+      }
+
+      .score-card,
+      .round-card {
+        padding: 8px 7px;
+      }
+
+      .round-card {
+        min-width: 0;
+      }
+
+      .player-label span {
+        font-size: 0.56rem;
+      }
+
+      .score-number {
+        margin-left: 5px;
+      }
+
+      .overlay-card {
+        padding: 20px 14px;
+      }
+
+      .menu-grid,
+      .instructions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="game-shell">
+    <header class="title-area">
+      <h1>Neon Air Hockey</h1>
+      <p>Speed, precision and neon chaos</p>
+    </header>
+
+    <section class="hud">
+      <div class="score-card player-one">
+        <div class="player-label">
+          <span>Player 1</span>
+          <strong id="playerOneName">You</strong>
+        </div>
+
+        <div class="score-number" id="playerOneScore">0</div>
+      </div>
+
+      <div class="round-card">
+        <span>First to</span>
+        <strong>7 Goals</strong>
+      </div>
+
+      <div class="score-card player-two">
+        <div class="player-label">
+          <span>Player 2</span>
+          <strong id="playerTwoName">AI</strong>
+        </div>
+
+        <div class="score-number" id="playerTwoScore">0</div>
+      </div>
+    </section>
+
+    <section class="power-bars">
+      <div class="power-panel">
+        <div class="power-panel-header">
+          <span>Player Power</span>
+          <span id="playerPowerText">0%</span>
+        </div>
+
+        <div class="power-track">
+          <div class="power-fill" id="playerPowerFill"></div>
+        </div>
+      </div>
+
+      <div class="power-panel">
+        <div class="power-panel-header">
+          <span>Opponent Power</span>
+          <span id="opponentPowerText">0%</span>
+        </div>
+
+        <div class="power-track">
+          <div class="power-fill" id="opponentPowerFill"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="arena-wrap">
+      <canvas id="gameCanvas" width="720" height="900"></canvas>
+
+      <div class="overlay" id="gameOverlay">
+        <div class="overlay-card">
+          <div class="overlay-icon" id="overlayIcon">🏒</div>
+
+          <h2 id="overlayTitle">Neon Air Hockey</h2>
+
+          <p id="overlayText">
+            Score seven goals before your opponent and become the neon champion.
+          </p>
+
+          <div class="menu-grid" id="menuOptions">
+            <div class="menu-group">
+              <label for="gameMode">Game Mode</label>
+
+              <select id="gameMode">
+                <option value="ai">Player vs AI</option>
+                <option value="two">2 Players</option>
+              </select>
+            </div>
+
+            <div class="menu-group">
+              <label for="difficulty">AI Difficulty</label>
+
+              <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="instructions" id="instructions">
+            <div class="instruction">
+              <b>Player 1:</b><br>
+              Mouse, touch or A / D
+            </div>
+
+            <div class="instruction">
+              <b>Player 2:</b><br>
+              Left / Right arrows
+            </div>
+
+            <div class="instruction">
+              <b>Power Shot:</b><br>
+              Build energy by hitting the puck
+            </div>
+
+            <div class="instruction">
+              <b>Pause:</b><br>
+              Press P or Escape
+            </div>
+          </div>
+
+          <button class="primary-button" id="mainButton">
+            Start Game
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="status-text" id="statusText"></div>
+
+    <div class="controls-row">
+      <button class="secondary-button" id="pauseButton">
+        Pause
+      </button>
+
+      <button class="secondary-button" id="restartButton">
+        Restart
+      </button>
+    </div>
+
+    <p class="bottom-info">
+      Move your paddle horizontally. A fully charged paddle creates a powerful neon shot.
+    </p>
+  </main>
+
+  <script>
+    "use strict";
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const overlay = document.getElementById("gameOverlay");
+    const overlayIcon = document.getElementById("overlayIcon");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlayText = document.getElementById("overlayText");
+    const mainButton = document.getElementById("mainButton");
+
+    const menuOptions = document.getElementById("menuOptions");
+    const instructions = document.getElementById("instructions");
+
+    const gameModeSelect = document.getElementById("gameMode");
+    const difficultySelect = document.getElementById("difficulty");
+
+    const playerOneName = document.getElementById("playerOneName");
+    const playerTwoName = document.getElementById("playerTwoName");
+    const playerOneScore = document.getElementById("playerOneScore");
+    const playerTwoScore = document.getElementById("playerTwoScore");
+
+    const playerPowerFill = document.getElementById("playerPowerFill");
+    const opponentPowerFill = document.getElementById("opponentPowerFill");
+    const playerPowerText = document.getElementById("playerPowerText");
+    const opponentPowerText = document.getElementById("opponentPowerText");
+
+    const statusText = document.getElementById("statusText");
+    const pauseButton = document.getElementById("pauseButton");
+    const restartButton = document.getElementById("restartButton");
+
+    const WIDTH = canvas.width;
+    const HEIGHT = canvas.height;
+
+    const CENTER_X = WIDTH / 2;
+    const CENTER_Y = HEIGHT / 2;
+
+    const WALL_MARGIN = 34;
+    const GOAL_WIDTH = 280;
+    const GOAL_LEFT = CENTER_X - GOAL_WIDTH / 2;
+    const GOAL_RIGHT = CENTER_X + GOAL_WIDTH / 2;
+
+    const WINNING_SCORE = 7;
+    const PADDLE_RADIUS = 36;
+    const PUCK_RADIUS = 20;
+
+    const COLORS = {
+      cyan: "#00f7ff",
+      blue: "#2d7cff",
+      pink: "#ff3cac",
+      purple: "#a855f7",
+      green: "#39ff88",
+      yellow: "#ffe600",
+      red: "#ff3158",
+      white: "#f4fbff"
+    };
+
+    let state = "menu";
+    let gameMode = "ai";
+    let difficulty = "normal";
+
+    let playerScore = 0;
+    let opponentScore = 0;
+
+    let animationFrameId = null;
+    let lastTimestamp = 0;
+
+    let goalPauseUntil = 0;
+    let roundStartUntil = 0;
+
+    let shakePower = 0;
+    let flashAlpha = 0;
+
+    let particles = [];
+    let puckTrail = [];
+
+    let pointerActive = false;
+    let pointerX = CENTER_X;
+
+    const keys = {
+      a: false,
+      d: false,
+      left: false,
+      right: false
+    };
+
+    const player = {
+      x: CENTER_X,
+      y: HEIGHT - 135,
+      previousX: CENTER_X,
+      radius: PADDLE_RADIUS,
+      speed: 620,
+      color: COLORS.cyan,
+      power: 0,
+      glow: 0
+    };
+
+    const opponent = {
+      x: CENTER_X,
+      y: 135,
+      previousX: CENTER_X,
+      radius: PADDLE_RADIUS,
+      speed: 560,
+      color: COLORS.pink,
+      power: 0,
+      glow: 0
+    };
+
+    const puck = {
+      x: CENTER_X,
+      y: CENTER_Y,
+      vx: 0,
+      vy: 0,
+      radius: PUCK_RADIUS,
+      maxSpeed: 1050,
+      color: COLORS.white,
+      charged: false
+    };
+
+    class Particle {
+      constructor(x, y, color, options = {}) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = options.speed ?? 100 + Math.random() * 220;
+
+        this.x = x;
+        this.y = y;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+
+        this.radius = options.radius ?? 2 + Math.random() * 5;
+        this.life = options.life ?? 0.5 + Math.random() * 0.7;
+        this.maxLife = this.life;
+
+        this.color = color;
+        this.drag = options.drag ?? 0.98;
+      }
+
+      update(deltaTime) {
+        this.x += this.vx * deltaTime;
+        this.y += this.vy * deltaTime;
+
+        this.vx *= Math.pow(this.drag, deltaTime * 60);
+        this.vy *= Math.pow(this.drag, deltaTime * 60);
+
+        this.life -= deltaTime;
+      }
+
+      draw() {
+        if (this.life <= 0) {
+          return;
+        }
+
+        ctx.save();
+
+        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = this.color;
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    class TrailPoint {
+      constructor(x, y, charged) {
+        this.x = x;
+        this.y = y;
+        this.life = charged ? 0.5 : 0.32;
+        this.maxLife = this.life;
+        this.charged = charged;
+      }
+
+      update(deltaTime) {
+        this.life -= deltaTime;
+      }
+
+      draw() {
+        if (this.life <= 0) {
+          return;
+        }
+
+        const ratio = this.life / this.maxLife;
+
+        ctx.save();
+
+        ctx.globalAlpha = ratio * 0.55;
+        ctx.fillStyle = this.charged ? COLORS.yellow : COLORS.cyan;
+        ctx.shadowBlur = this.charged ? 25 : 14;
+        ctx.shadowColor = this.charged ? COLORS.yellow : COLORS.cyan;
+
+        ctx.beginPath();
+        ctx.arc(
+          this.x,
+          this.y,
+          puck.radius * ratio * 0.85,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    function startGame() {
+      gameMode = gameModeSelect.value;
+      difficulty = difficultySelect.value;
+
+      playerOneName.textContent = "You";
+      playerTwoName.textContent =
+        gameMode === "ai" ? `${capitalize(difficulty)} AI` : "Player 2";
+
+      playerScore = 0;
+      opponentScore = 0;
+
+      resetPaddles();
+      resetPuck(Math.random() > 0.5 ? 1 : -1);
+
+      particles = [];
+      puckTrail = [];
+
+      state = "playing";
+      pauseButton.textContent = "Pause";
+
+      hideOverlay();
+      updateHUD();
+
+      roundStartUntil = performance.now() + 950;
+      lastTimestamp = performance.now();
+
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function resetGame() {
+      startGame();
+    }
+
+    function resetPaddles() {
+      player.x = CENTER_X;
+      player.previousX = CENTER_X;
+      player.power = 0;
+      player.glow = 0;
+
+      opponent.x = CENTER_X;
+      opponent.previousX = CENTER_X;
+      opponent.power = 0;
+      opponent.glow = 0;
+    }
+
+    function resetPuck(direction) {
+      puck.x = CENTER_X;
+      puck.y = CENTER_Y;
+
+      const angle = randomBetween(-0.65, 0.65);
+      const speed = 430;
+
+      puck.vx = Math.sin(angle) * speed;
+      puck.vy = Math.cos(angle) * speed * direction;
+
+      puck.charged = false;
+
+      puckTrail = [];
+    }
+
+    function gameLoop(timestamp) {
+      if (state !== "playing") {
+        return;
+      }
+
+      const deltaTime = Math.min(
+        (timestamp - lastTimestamp) / 1000,
+        0.033
+      );
+
+      lastTimestamp = timestamp;
+
+      update(deltaTime);
+      draw();
+
+      animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function update(deltaTime) {
+      const now = performance.now();
+
+      updateParticles(deltaTime);
+      updateTrail(deltaTime);
+
+      if (flashAlpha > 0) {
+        flashAlpha = Math.max(0, flashAlpha - deltaTime * 2.6);
+      }
+
+      if (shakePower > 0) {
+        shakePower = Math.max(0, shakePower - deltaTime * 28);
+      }
+
+      if (now < goalPauseUntil || now < roundStartUntil) {
+        updateHUD();
+        return;
+      }
+
+      updatePlayer(deltaTime);
+      updateOpponent(deltaTime);
+      updatePuck(deltaTime);
+
+      updateHUD();
+    }
+
+    function updatePlayer(deltaTime) {
+      player.previousX = player.x;
+
+      if (pointerActive) {
+        const target = clamp(
+          pointerX,
+          WALL_MARGIN + player.radius,
+          WIDTH - WALL_MARGIN - player.radius
+        );
+
+        player.x += (target - player.x) * Math.min(1, deltaTime * 17);
+      } else {
+        let direction = 0;
+
+        if (keys.a) {
+          direction -= 1;
+        }
+
+        if (keys.d) {
+          direction += 1;
+        }
+
+        player.x += direction * player.speed * deltaTime;
+      }
+
+      player.x = clamp(
+        player.x,
+        WALL_MARGIN + player.radius,
+        WIDTH - WALL_MARGIN - player.radius
+      );
+
+      player.glow = Math.max(0, player.glow - deltaTime * 2.7);
+    }
+
+    function updateOpponent(deltaTime) {
+      opponent.previousX = opponent.x;
+
+      if (gameMode === "two") {
+        let direction = 0;
+
+        if (keys.left) {
+          direction -= 1;
+        }
+
+        if (keys.right) {
+          direction += 1;
+        }
+
+        opponent.x += direction * opponent.speed * deltaTime;
+      } else {
+        updateAI(deltaTime);
+      }
+
+      opponent.x = clamp(
+        opponent.x,
+        WALL_MARGIN + opponent.radius,
+        WIDTH - WALL_MARGIN - opponent.radius
+      );
+
+      opponent.glow = Math.max(0, opponent.glow - deltaTime * 2.7);
+    }
+
+    function updateAI(deltaTime) {
+      const settings = {
+        easy: {
+          speed: 330,
+          reaction: 0.045,
+          error: 90
+        },
+        normal: {
+          speed: 470,
+          reaction: 0.085,
+          error: 38
+        },
+        hard: {
+          speed: 650,
+          reaction: 0.14,
+          error: 10
+        }
+      };
+
+      const config = settings[difficulty];
+
+      let targetX = CENTER_X;
+
+      if (puck.vy < 0 || puck.y < CENTER_Y + 80) {
+        const prediction =
+          puck.x +
+          puck.vx *
+          Math.max(0, (puck.y - opponent.y) / Math.abs(puck.vy || 1));
+
+        const dynamicError =
+          Math.sin(performance.now() * 0.0017) * config.error;
+
+        targetX = prediction + dynamicError;
+      }
+
+      if (puck.y > CENTER_Y + 170) {
+        targetX = CENTER_X;
+      }
+
+      const difference = targetX - opponent.x;
+      const movement = clamp(
+        difference * config.reaction,
+        -config.speed * deltaTime,
+        config.speed * deltaTime
+      );
+
+      opponent.x += movement;
+    }
+
+    function updatePuck(deltaTime) {
+      puck.x += puck.vx * deltaTime;
+      puck.y += puck.vy * deltaTime;
+
+      puckTrail.push(
+        new TrailPoint(puck.x, puck.y, puck.charged)
+      );
+
+      if (puckTrail.length > 28) {
+        puckTrail.shift();
+      }
+
+      handleSideWalls();
+      handleGoals();
+      handlePaddleCollision(player, "player");
+      handlePaddleCollision(opponent, "opponent");
+
+      const speed = Math.hypot(puck.vx, puck.vy);
+
+      if (speed > puck.maxSpeed) {
+        const scale = puck.maxSpeed / speed;
+
+        puck.vx *= scale;
+        puck.vy *= scale;
+      }
+
+      puck.vx *= Math.pow(0.9996, deltaTime * 60);
+      puck.vy *= Math.pow(0.9996, deltaTime * 60);
+    }
+
+    function handleSideWalls() {
+      const leftLimit = WALL_MARGIN + puck.radius;
+      const rightLimit = WIDTH - WALL_MARGIN - puck.radius;
+
+      if (puck.x <= leftLimit) {
+        puck.x = leftLimit;
+        puck.vx = Math.abs(puck.vx);
+
+        wallImpact(puck.x, puck.y);
+      }
+
+      if (puck.x >= rightLimit) {
+        puck.x = rightLimit;
+        puck.vx = -Math.abs(puck.vx);
+
+        wallImpact(puck.x, puck.y);
+      }
+    }
+
+    function handleGoals() {
+      const insideGoal =
+        puck.x > GOAL_LEFT + puck.radius * 0.3 &&
+        puck.x < GOAL_RIGHT - puck.radius * 0.35;
+
+      const topGoalLine = WALL_MARGIN - puck.radius;
+      const bottomGoalLine = HEIGHT - WALL_MARGIN + puck.radius;
+
+      if (puck.y < topGoalLine) {
+        if (insideGoal) {
+          scoreGoal("player");
+        } else {
+          puck.y = WALL_MARGIN + puck.radius;
+          puck.vy = Math.abs(puck.vy);
+          wallImpact(puck.x, puck.y);
+        }
+      }
+
+      if (puck.y > bottomGoalLine) {
+        if (insideGoal) {
+          scoreGoal("opponent");
+        } else {
+          puck.y = HEIGHT - WALL_MARGIN - puck.radius;
+          puck.vy = -Math.abs(puck.vy);
+          wallImpact(puck.x, puck.y);
+        }
+      }
+    }
+
+    function handlePaddleCollision(paddle, owner) {
+      const dx = puck.x - paddle.x;
+      const dy = puck.y - paddle.y;
+
+      const distance = Math.hypot(dx, dy);
+      const minimumDistance = puck.radius + paddle.radius;
+
+      if (distance >= minimumDistance || distance === 0) {
+        return;
+      }
+
+      const normalX = dx / distance;
+      const normalY = dy / distance;
+
+      const overlap = minimumDistance - distance;
+
+      puck.x += normalX * overlap;
+      puck.y += normalY * overlap;
+
+      const paddleVelocity =
+        (paddle.x - paddle.previousX) * 60;
+
+      const relativeVelocityX = puck.vx - paddleVelocity;
+      const relativeVelocityY = puck.vy;
+
+      const dot =
+        relativeVelocityX * normalX +
+        relativeVelocityY * normalY;
+
+      if (dot < 0) {
+        puck.vx -= 2 * dot * normalX;
+        puck.vy -= 2 * dot * normalY;
+      }
+
+      puck.vx += paddleVelocity * 0.38;
+
+      const outgoingDirection = owner === "player" ? -1 : 1;
+
+      puck.vy =
+        outgoingDirection *
+        Math.max(330, Math.abs(puck.vy) + 35);
+
+      const speedBoost = 1.045;
+
+      puck.vx *= speedBoost;
+      puck.vy *= speedBoost;
+
+      paddle.power = Math.min(
+        100,
+        paddle.power + 13 + Math.hypot(puck.vx, puck.vy) / 120
+      );
+
+      paddle.glow = 1;
+
+      if (paddle.power >= 100) {
+        activatePowerShot(paddle, owner);
+      } else {
+        puck.charged = false;
+      }
+
+      createImpactBurst(
+        puck.x,
+        puck.y,
+        paddle.color,
+        16
+      );
+
+      shakePower = Math.min(7, shakePower + 1.8);
+    }
+
+    function activatePowerShot(paddle, owner) {
+      paddle.power = 0;
+      paddle.glow = 1;
+
+      const direction = owner === "player" ? -1 : 1;
+
+      puck.vy =
+        direction *
+        Math.max(850, Math.abs(puck.vy) * 1.38);
+
+      puck.vx *= 1.25;
+      puck.charged = true;
+
+      createImpactBurst(
+        puck.x,
+        puck.y,
+        COLORS.yellow,
+        35,
+        {
+          speed: 330,
+          life: 0.9,
+          radius: 5
+        }
+      );
+
+      shakePower = 12;
+      flashAlpha = 0.24;
+
+      statusText.textContent =
+        owner === "player"
+          ? "⚡ PLAYER POWER SHOT!"
+          : "⚡ OPPONENT POWER SHOT!";
+
+      window.setTimeout(() => {
+        if (state === "playing") {
+          statusText.textContent = "";
+        }
+      }, 1100);
+    }
+
+    function scoreGoal(side) {
+      if (performance.now() < goalPauseUntil) {
+        return;
+      }
+
+      if (side === "player") {
+        playerScore += 1;
+      } else {
+        opponentScore += 1;
+      }
+
+      goalPauseUntil = performance.now() + 1300;
+      flashAlpha = 0.38;
+      shakePower = 18;
+
+      createImpactBurst(
+        puck.x,
+        side === "player" ? WALL_MARGIN : HEIGHT - WALL_MARGIN,
+        side === "player" ? COLORS.cyan : COLORS.pink,
+        70,
+        {
+          speed: 430,
+          life: 1.2,
+          radius: 6
+        }
+      );
+
+      statusText.textContent =
+        side === "player"
+          ? "🔥 PLAYER 1 SCORES!"
+          : gameMode === "ai"
+            ? "🤖 AI SCORES!"
+            : "🔥 PLAYER 2 SCORES!";
+
+      puck.vx = 0;
+      puck.vy = 0;
+      puck.charged = false;
+
+      updateHUD();
+
+      if (
+        playerScore >= WINNING_SCORE ||
+        opponentScore >= WINNING_SCORE
+      ) {
+        window.setTimeout(endGame, 950);
+        return;
+      }
+
+      window.setTimeout(() => {
+        resetPaddles();
+        resetPuck(side === "player" ? 1 : -1);
+        roundStartUntil = performance.now() + 700;
+        statusText.textContent = "";
+      }, 1200);
+    }
+
+    function endGame() {
+      state = "gameover";
+
+      const playerWon = playerScore > opponentScore;
+
+      showOverlay({
+        icon: playerWon ? "🏆" : "💥",
+        title: playerWon
+          ? "Neon Champion"
+          : gameMode === "ai"
+            ? "AI Wins"
+            : "Player 2 Wins",
+        text: `Final score: ${playerScore} : ${opponentScore}`,
+        buttonText: "Play Again",
+        showMenu: false,
+        showInstructions: false
+      });
+
+      mainButton.onclick = startGame;
+    }
+
+    function togglePause() {
+      if (
+        state === "menu" ||
+        state === "gameover"
+      ) {
+        return;
+      }
+
+      if (state === "paused") {
+        state = "playing";
+        pauseButton.textContent = "Pause";
+
+        hideOverlay();
+
+        lastTimestamp = performance.now();
+        animationFrameId = requestAnimationFrame(gameLoop);
+      } else if (state === "playing") {
+        state = "paused";
+        pauseButton.textContent = "Resume";
+
+        showOverlay({
+          icon: "⏸️",
+          title: "Paused",
+          text: "The neon arena is waiting.",
+          buttonText: "Resume",
+          showMenu: false,
+          showInstructions: false
+        });
+
+        mainButton.onclick = togglePause;
+      }
+    }
+
+    function updateParticles(deltaTime) {
+      for (const particle of particles) {
+        particle.update(deltaTime);
+      }
+
+      particles = particles.filter(
+        (particle) => particle.life > 0
+      );
+    }
+
+    function updateTrail(deltaTime) {
+      for (const point of puckTrail) {
+        point.update(deltaTime);
+      }
+
+      puckTrail = puckTrail.filter(
+        (point) => point.life > 0
+      );
+    }
+
+    function updateHUD() {
+      playerOneScore.textContent = playerScore;
+      playerTwoScore.textContent = opponentScore;
+
+      const playerPower = Math.round(player.power);
+      const opponentPower = Math.round(opponent.power);
+
+      playerPowerFill.style.width = `${playerPower}%`;
+      opponentPowerFill.style.width = `${opponentPower}%`;
+
+      playerPowerText.textContent =
+        playerPower >= 100 ? "READY!" : `${playerPower}%`;
+
+      opponentPowerText.textContent =
+        opponentPower >= 100 ? "READY!" : `${opponentPower}%`;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      const shakeX =
+        shakePower > 0
+          ? randomBetween(-shakePower, shakePower)
+          : 0;
+
+      const shakeY =
+        shakePower > 0
+          ? randomBetween(-shakePower, shakePower)
+          : 0;
+
+      ctx.save();
+      ctx.translate(shakeX, shakeY);
+
+      drawArena();
+      drawTrail();
+
+      for (const particle of particles) {
+        particle.draw();
+      }
+
+      drawPaddle(player, "bottom");
+      drawPaddle(opponent, "top");
+      drawPuck();
+
+      if (performance.now() < roundStartUntil) {
+        drawRoundCountdown();
+      }
+
+      ctx.restore();
+
+      if (flashAlpha > 0) {
+        ctx.save();
+        ctx.globalAlpha = flashAlpha;
+        ctx.fillStyle = COLORS.white;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.restore();
+      }
+    }
+
+    function drawArena() {
+      const background = ctx.createLinearGradient(
+        0,
+        0,
+        0,
+        HEIGHT
+      );
+
+      background.addColorStop(0, "#09051b");
+      background.addColorStop(0.48, "#031222");
+      background.addColorStop(0.52, "#031222");
+      background.addColorStop(1, "#03121c");
+
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      drawGrid();
+      drawArenaBorder();
+      drawCenterLine();
+      drawCenterCircle();
+      drawGoals();
+      drawDecorations();
+    }
+
+    function drawGrid() {
+      ctx.save();
+
+      ctx.strokeStyle = "rgba(0, 247, 255, 0.06)";
+      ctx.lineWidth = 1;
+
+      for (let x = WALL_MARGIN; x <= WIDTH - WALL_MARGIN; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, WALL_MARGIN);
+        ctx.lineTo(x, HEIGHT - WALL_MARGIN);
+        ctx.stroke();
+      }
+
+      for (let y = WALL_MARGIN; y <= HEIGHT - WALL_MARGIN; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(WALL_MARGIN, y);
+        ctx.lineTo(WIDTH - WALL_MARGIN, y);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawArenaBorder() {
+      ctx.save();
+
+      ctx.strokeStyle = COLORS.cyan;
+      ctx.lineWidth = 5;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = COLORS.cyan;
+
+      ctx.beginPath();
+
+      ctx.moveTo(WALL_MARGIN, WALL_MARGIN);
+      ctx.lineTo(GOAL_LEFT, WALL_MARGIN);
+
+      ctx.moveTo(GOAL_RIGHT, WALL_MARGIN);
+      ctx.lineTo(WIDTH - WALL_MARGIN, WALL_MARGIN);
+
+      ctx.lineTo(WIDTH - WALL_MARGIN, HEIGHT - WALL_MARGIN);
+      ctx.lineTo(GOAL_RIGHT, HEIGHT - WALL_MARGIN);
+
+      ctx.moveTo(GOAL_LEFT, HEIGHT - WALL_MARGIN);
+      ctx.lineTo(WALL_MARGIN, HEIGHT - WALL_MARGIN);
+      ctx.lineTo(WALL_MARGIN, WALL_MARGIN);
+
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawCenterLine() {
+      ctx.save();
+
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.36)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([20, 16]);
+
+      ctx.beginPath();
+      ctx.moveTo(WALL_MARGIN, CENTER_Y);
+      ctx.lineTo(WIDTH - WALL_MARGIN, CENTER_Y);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    function drawCenterCircle() {
+      ctx.save();
+
+      ctx.strokeStyle = "rgba(0, 247, 255, 0.52)";
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = COLORS.cyan;
+
+      ctx.beginPath();
+      ctx.arc(CENTER_X, CENTER_Y, 82, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(0, 247, 255, 0.035)";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(CENTER_X, CENTER_Y, 7, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.cyan;
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawGoals() {
+      drawGoal(GOAL_LEFT, WALL_MARGIN, "top");
+      drawGoal(
+        GOAL_LEFT,
+        HEIGHT - WALL_MARGIN,
+        "bottom"
+      );
+    }
+
+    function drawGoal(x, y, side) {
+      ctx.save();
+
+      const depth = 30;
+      const direction = side === "top" ? -1 : 1;
+
+      ctx.strokeStyle =
+        side === "top" ? COLORS.pink : COLORS.cyan;
+
+      ctx.lineWidth = 4;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor =
+        side === "top" ? COLORS.pink : COLORS.cyan;
+
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + depth * direction);
+      ctx.lineTo(x + GOAL_WIDTH, y + depth * direction);
+      ctx.lineTo(x + GOAL_WIDTH, y);
+      ctx.stroke();
+
+      ctx.fillStyle =
+        side === "top"
+          ? "rgba(255, 60, 172, 0.07)"
+          : "rgba(0, 247, 255, 0.07)";
+
+      ctx.fillRect(
+        x,
+        side === "top" ? y - depth : y,
+        GOAL_WIDTH,
+        depth
+      );
+
+      ctx.restore();
+    }
+
+    function drawDecorations() {
+      ctx.save();
+
+      ctx.font = "bold 80px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.globalAlpha = 0.032;
+
+      ctx.fillStyle = COLORS.pink;
+      ctx.fillText("NEON", CENTER_X, 245);
+
+      ctx.fillStyle = COLORS.cyan;
+      ctx.fillText("HOCKEY", CENTER_X, HEIGHT - 245);
+
+      ctx.restore();
+    }
+
+    function drawTrail() {
+      for (const point of puckTrail) {
+        point.draw();
+      }
+    }
+
+    function drawPaddle(paddle, side) {
+      const color = paddle.color;
+      const pulse =
+        paddle.power >= 85
+          ? 1 + Math.sin(performance.now() * 0.012) * 0.08
+          : 1;
+
+      ctx.save();
+
+      ctx.translate(paddle.x, paddle.y);
+      ctx.scale(pulse, pulse);
+
+      ctx.shadowBlur =
+        paddle.power >= 100
+          ? 35
+          : 18 + paddle.glow * 16;
+
+      ctx.shadowColor =
+        paddle.power >= 100 ? COLORS.yellow : color;
+
+      const outerGradient = ctx.createRadialGradient(
+        -12,
+        -14,
+        5,
+        0,
+        0,
+        paddle.radius
+      );
+
+      outerGradient.addColorStop(0, "#ffffff");
+      outerGradient.addColorStop(0.17, color);
+      outerGradient.addColorStop(0.68, color);
+      outerGradient.addColorStop(1, "#06111f");
+
+      ctx.fillStyle = outerGradient;
+
+      ctx.beginPath();
+      ctx.arc(0, 0, paddle.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle =
+        paddle.power >= 100 ? COLORS.yellow : color;
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = "rgba(2, 7, 16, 0.78)";
+      ctx.beginPath();
+      ctx.arc(0, 0, paddle.radius * 0.53, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.35)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = color;
+      ctx.font = "bold 16px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.fillText(
+        side === "bottom" ? "P1" : gameMode === "ai" ? "AI" : "P2",
+        0,
+        1
+      );
+
+      if (paddle.power >= 100) {
+        ctx.strokeStyle = COLORS.yellow;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = COLORS.yellow;
+
+        ctx.beginPath();
+        ctx.arc(
+          0,
+          0,
+          paddle.radius + 9,
+          -Math.PI / 2,
+          -Math.PI / 2 +
+            Math.PI * 2 *
+            ((performance.now() % 1200) / 1200)
+        );
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawPuck() {
+      ctx.save();
+
+      ctx.translate(puck.x, puck.y);
+
+      const color = puck.charged
+        ? COLORS.yellow
+        : COLORS.white;
+
+      ctx.shadowBlur = puck.charged ? 34 : 22;
+      ctx.shadowColor = puck.charged
+        ? COLORS.yellow
+        : COLORS.cyan;
+
+      const gradient = ctx.createRadialGradient(
+        -7,
+        -8,
+        3,
+        0,
+        0,
+        puck.radius
+      );
+
+      gradient.addColorStop(0, "#ffffff");
+      gradient.addColorStop(
+        0.36,
+        puck.charged ? COLORS.yellow : COLORS.cyan
+      );
+      gradient.addColorStop(1, "#0a1324");
+
+      ctx.fillStyle = gradient;
+
+      ctx.beginPath();
+      ctx.arc(0, 0, puck.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(2, 7, 16, 0.7)";
+
+      ctx.beginPath();
+      ctx.arc(0, 0, puck.radius * 0.42, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawRoundCountdown() {
+      const remaining = roundStartUntil - performance.now();
+
+      let text = "GO!";
+
+      if (remaining > 650) {
+        text = "3";
+      } else if (remaining > 380) {
+        text = "2";
+      } else if (remaining > 130) {
+        text = "1";
+      }
+
+      ctx.save();
+
+      ctx.fillStyle = COLORS.yellow;
+      ctx.font = "bold 82px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      ctx.shadowBlur = 28;
+      ctx.shadowColor = COLORS.yellow;
+
+      ctx.fillText(text, CENTER_X, CENTER_Y);
+
+      ctx.restore();
+    }
+
+    function wallImpact(x, y) {
+      createImpactBurst(
+        x,
+        y,
+        COLORS.cyan,
+        8,
+        {
+          speed: 130,
+          life: 0.45,
+          radius: 3
+        }
+      );
+    }
+
+    function createImpactBurst(
+      x,
+      y,
+      color,
+      count,
+      options = {}
+    ) {
+      for (let i = 0; i < count; i++) {
+        particles.push(
+          new Particle(x, y, color, options)
+        );
+      }
+    }
+
+    function showOverlay({
+      icon,
+      title,
+      text,
+      buttonText,
+      showMenu,
+      showInstructions
+    }) {
+      overlayIcon.textContent = icon;
+      overlayTitle.textContent = title;
+      overlayText.textContent = text;
+      mainButton.textContent = buttonText;
+
+      menuOptions.style.display = showMenu ? "grid" : "none";
+      instructions.style.display =
+        showInstructions ? "grid" : "none";
+
+      overlay.classList.remove("hidden");
+    }
+
+    function hideOverlay() {
+      overlay.classList.add("hidden");
+    }
+
+    function handlePointerMove(event) {
+      if (state !== "playing") {
+        return;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = WIDTH / rect.width;
+
+      pointerX = (event.clientX - rect.left) * scaleX;
+    }
+
+    function handlePointerDown(event) {
+      pointerActive = true;
+      handlePointerMove(event);
+
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch (error) {
+        // Pointer capture is not available in every browser.
+      }
+    }
+
+    function handlePointerUp(event) {
+      pointerActive = false;
+
+      try {
+        canvas.releasePointerCapture(event.pointerId);
+      } catch (error) {
+        // Pointer capture may already be released.
+      }
+    }
+
+    function handleKeyDown(event) {
+      const key = event.key.toLowerCase();
+
+      if (
+        [
+          "a",
+          "d",
+          "arrowleft",
+          "arrowright",
+          "p",
+          "escape"
+        ].includes(key)
+      ) {
+        event.preventDefault();
+      }
+
+      if (key === "a") {
+        keys.a = true;
+        pointerActive = false;
+      }
+
+      if (key === "d") {
+        keys.d = true;
+        pointerActive = false;
+      }
+
+      if (key === "arrowleft") {
+        keys.left = true;
+      }
+
+      if (key === "arrowright") {
+        keys.right = true;
+      }
+
+      if (key === "p" || key === "escape") {
+        togglePause();
+      }
+
+      if (key === "enter" && state === "gameover") {
+        startGame();
+      }
+    }
+
+    function handleKeyUp(event) {
+      const key = event.key.toLowerCase();
+
+      if (key === "a") {
+        keys.a = false;
+      }
+
+      if (key === "d") {
+        keys.d = false;
+      }
+
+      if (key === "arrowleft") {
+        keys.left = false;
+      }
+
+      if (key === "arrowright") {
+        keys.right = false;
+      }
+    }
+
+    function clamp(value, minimum, maximum) {
+      return Math.max(minimum, Math.min(maximum, value));
+    }
+
+    function randomBetween(minimum, maximum) {
+      return minimum + Math.random() * (maximum - minimum);
+    }
+
+    function capitalize(value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    mainButton.addEventListener("click", startGame);
+    pauseButton.addEventListener("click", togglePause);
+    restartButton.addEventListener("click", resetGame);
+
+    gameModeSelect.addEventListener("change", () => {
+      difficultySelect.disabled =
+        gameModeSelect.value === "two";
+    });
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerup", handlePointerUp);
+    canvas.addEventListener("pointercancel", handlePointerUp);
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    window.addEventListener("blur", () => {
+      if (state === "playing") {
+        togglePause();
+      }
+    });
+
+    resetPaddles();
+    resetPuck(-1);
+    updateHUD();
+    draw();
+  </script>
+</body>
+</html>
