@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGame #39 – Neon Tron</title>
+
+<style>
+:root {
+  --bg: #02040b;
+  --panel: rgba(7, 14, 30, 0.92);
+  --cyan: #00f7ff;
+  --pink: #ff3cac;
+  --green: #39ff88;
+  --yellow: #ffe600;
+  --white: #f5fbff;
+  --muted: #8ba3b8;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0,247,255,0.12), transparent 35%),
+    radial-gradient(circle at 80% 75%, rgba(255,60,172,0.10), transparent 35%),
+    linear-gradient(145deg, #01030a, #071126 55%, #02040b);
+  color: var(--white);
+  font-family: Arial, sans-serif;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.game-shell {
+  width: min(100%, 920px);
+}
+
+.title-area {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.title-area h1 {
+  font-size: clamp(2rem, 7vw, 4.2rem);
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 0 8px rgba(0,247,255,0.95),
+    0 0 26px rgba(0,247,255,0.55);
+}
+
+.title-area p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.score-card,
+.round-card {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid rgba(0,247,255,0.25);
+}
+
+.score-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-card.player-two {
+  border-color: rgba(255,60,172,0.35);
+}
+
+.player-label span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.player-label strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--cyan);
+}
+
+.player-two .player-label strong {
+  color: var(--pink);
+}
+
+.score-number {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  font-weight: bold;
+  color: var(--cyan);
+  text-shadow: 0 0 14px rgba(0,247,255,0.8);
+}
+
+.player-two .score-number {
+  color: var(--pink);
+  text-shadow: 0 0 14px rgba(255,60,172,0.8);
+}
+
+.round-card {
+  text-align: center;
+  min-width: 110px;
+}
+
+.round-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.round-card strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--yellow);
+}
+
+.power-bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.power-panel {
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(7,14,31,0.78);
+}
+
+.power-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.power-track {
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+
+.power-fill {
+  height: 100%;
+  width: 100%;
+}
+
+#playerBoostFill {
+  background: linear-gradient(90deg, #2d7cff, var(--cyan));
+  box-shadow: 0 0 12px rgba(0,247,255,0.75);
+}
+
+#opponentBoostFill {
+  background: linear-gradient(90deg, #a855f7, var(--pink));
+  box-shadow: 0 0 12px rgba(255,60,172,0.75);
+}
+
+.arena-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(0,247,255,0.45);
+  border-radius: 18px;
+  background: #020612;
+  box-shadow:
+    0 0 16px rgba(0,247,255,0.28),
+    0 0 42px rgba(0,247,255,0.1),
+    inset 0 0 40px rgba(0,247,255,0.04);
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(1,5,14,0.84);
+  backdrop-filter: blur(8px);
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-card {
+  width: min(100%, 470px);
+  padding: 26px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(11,23,48,0.98), rgba(4,8,22,0.98));
+  border: 1px solid rgba(0,247,255,0.38);
+  text-align: center;
+}
+
+.overlay-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+.overlay-card h2 {
+  color: var(--cyan);
+  font-size: clamp(1.8rem, 6vw, 2.8rem);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.overlay-card p {
+  color: #c8d8e5;
+  line-height: 1.55;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.menu-group {
+  text-align: left;
+}
+
+.menu-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.menu-group select {
+  width: 100%;
+  padding: 11px 12px;
+  color: var(--white);
+  border-radius: 10px;
+  border: 1px solid rgba(0,247,255,0.3);
+  background: rgba(5,13,29,0.95);
+}
+
+.instructions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 18px 0;
+  text-align: left;
+}
+
+.instruction {
+  padding: 10px;
+  color: #c8d8e5;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.035);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.instruction b {
+  color: var(--cyan);
+}
+
+.primary-button,
+.secondary-button {
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.primary-button {
+  border: none;
+  color: #001417;
+  background: linear-gradient(135deg, var(--cyan), var(--green));
+}
+
+.secondary-button {
+  color: var(--cyan);
+  border: 1px solid rgba(0,247,255,0.4);
+  background: rgba(0,247,255,0.055);
+}
+
+.controls-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.status-text {
+  min-height: 25px;
+  margin-top: 9px;
+  text-align: center;
+  color: var(--yellow);
+  font-weight: bold;
+}
+
+.bottom-info {
+  margin-top: 10px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 620px) {
+  body {
+    padding: 10px;
+  }
+
+  .hud {
+    grid-template-columns: 1fr 78px 1fr;
+    gap: 5px;
+  }
+
+  .menu-grid,
+  .instructions {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="game-shell">
+
+<header class="title-area">
+  <h1>Neon Tron</h1>
+  <p>Light trails. Boost. Survive.</p>
+</header>
+
+<section class="hud">
+  <div class="score-card">
+    <div class="player-label">
+      <span>Player 1</span>
+      <strong id="playerName">CYAN</strong>
+    </div>
+    <div class="score-number" id="playerScore">0</div>
+  </div>
+
+  <div class="round-card">
+    <span>First to</span>
+    <strong>5 Rounds</strong>
+  </div>
+
+  <div class="score-card player-two">
+    <div class="player-label">
+      <span>Player 2</span>
+      <strong id="opponentName">AI</strong>
+    </div>
+    <div class="score-number" id="opponentScore">0</div>
+  </div>
+</section>
+
+<section class="power-bars">
+  <div class="power-panel">
+    <div class="power-header">
+      <span>Boost</span>
+      <span id="playerBoostText">100%</span>
+    </div>
+    <div class="power-track">
+      <div class="power-fill" id="playerBoostFill"></div>
+    </div>
+  </div>
+
+  <div class="power-panel">
+    <div class="power-header">
+      <span>Boost</span>
+      <span id="opponentBoostText">100%</span>
+    </div>
+    <div class="power-track">
+      <div class="power-fill" id="opponentBoostFill"></div>
+    </div>
+  </div>
+</section>
+
+<section class="arena-wrap">
+  <canvas id="gameCanvas" width="900" height="560"></canvas>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-card">
+      <div class="overlay-icon" id="overlayIcon">🏍️</div>
+
+      <h2 id="overlayTitle">Neon Tron</h2>
+
+      <p id="overlayText">
+        Trap your opponent with your light trail and survive the neon arena.
+      </p>
+
+      <div class="menu-grid" id="menuOptions">
+        <div class="menu-group">
+          <label for="gameMode">Game Mode</label>
+          <select id="gameMode">
+            <option value="ai">Player vs AI</option>
+            <option value="two">2 Players</option>
+          </select>
+        </div>
+
+        <div class="menu-group">
+          <label for="difficulty">AI Difficulty</label>
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="instructions" id="instructions">
+        <div class="instruction">
+          <b>Player 1:</b><br>
+          W A S D
+        </div>
+
+        <div class="instruction">
+          <b>Player 1 Boost:</b><br>
+          Left Shift
+        </div>
+
+        <div class="instruction">
+          <b>Player 2:</b><br>
+          Arrow Keys
+        </div>
+
+        <div class="instruction">
+          <b>Player 2 Boost:</b><br>
+          Right Shift
+        </div>
+      </div>
+
+      <button class="primary-button" id="mainButton">
+        Start Game
+      </button>
+    </div>
+  </div>
+</section>
+
+<div class="status-text" id="statusText"></div>
+
+<div class="controls-row">
+  <button class="secondary-button" id="pauseButton">Pause</button>
+  <button class="secondary-button" id="restartButton">Restart</button>
+</div>
+
+<p class="bottom-info">
+  Avoid walls and all light trails. Collect Data Cores for boost and temporary Phase Mode.
+</p>
+
+</main>
+
+<script>
+"use strict";
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
+
+const CELL = 10;
+const COLS = Math.floor(WIDTH / CELL);
+const ROWS = Math.floor(HEIGHT / CELL);
+
+const WIN_SCORE = 5;
+
+const COLORS = {
+  cyan: "#00f7ff",
+  pink: "#ff3cac",
+  yellow: "#ffe600",
+  green: "#39ff88",
+  white: "#f4fbff",
+  red: "#ff3158"
+};
+
+const overlay = document.getElementById("overlay");
+const overlayIcon = document.getElementById("overlayIcon");
+const overlayTitle = document.getElementById("overlayTitle");
+const overlayText = document.getElementById("overlayText");
+const mainButton = document.getElementById("mainButton");
+
+const menuOptions = document.getElementById("menuOptions");
+const instructions = document.getElementById("instructions");
+
+const gameModeSelect = document.getElementById("gameMode");
+const difficultySelect = document.getElementById("difficulty");
+
+const playerScoreEl = document.getElementById("playerScore");
+const opponentScoreEl = document.getElementById("opponentScore");
+
+const playerNameEl = document.getElementById("playerName");
+const opponentNameEl = document.getElementById("opponentName");
+
+const playerBoostFill = document.getElementById("playerBoostFill");
+const opponentBoostFill = document.getElementById("opponentBoostFill");
+
+const playerBoostText = document.getElementById("playerBoostText");
+const opponentBoostText = document.getElementById("opponentBoostText");
+
+const statusText = document.getElementById("statusText");
+
+const pauseButton = document.getElementById("pauseButton");
+const restartButton = document.getElementById("restartButton");
+
+let state = "menu";
+let gameMode = "ai";
+let difficulty = "normal";
+
+let playerScore = 0;
+let opponentScore = 0;
+
+let grid = [];
+let particles = [];
+let cores = [];
+
+let animationFrameId = null;
+let lastTimestamp = 0;
+let countdownUntil = 0;
+
+let shakePower = 0;
+let roundEnded = false;
+
+const keys = {
+  w: false,
+  a: false,
+  s: false,
+  d: false,
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+  shiftLeft: false,
+  shiftRight: false
+};
+
+const player = createCycle({
+  x: 20,
+  y: Math.floor(ROWS / 2),
+  direction: "right",
+  color: COLORS.cyan,
+  name: "CYAN"
+});
+
+const opponent = createCycle({
+  x: COLS - 21,
+  y: Math.floor(ROWS / 2),
+  direction: "left",
+  color: COLORS.pink,
+  name: "PINK"
+});
+
+class Particle {
+  constructor(x, y, color) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 80 + Math.random() * 260;
+
+    this.x = x;
+    this.y = y;
+
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+
+    this.life = 0.5 + Math.random() * 0.8;
+    this.maxLife = this.life;
+
+    this.radius = 2 + Math.random() * 5;
+    this.color = color;
+  }
+
+  update(dt) {
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+
+    this.vx *= 0.985;
+    this.vy *= 0.985;
+
+    this.life -= dt;
+  }
+
+  draw() {
+    if (this.life <= 0) return;
+
+    ctx.save();
+
+    ctx.globalAlpha = this.life / this.maxLife;
+    ctx.fillStyle = this.color;
+
+    ctx.shadowBlur = 16;
+    ctx.shadowColor = this.color;
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+function createCycle(config) {
+  return {
+    x: config.x,
+    y: config.y,
+    direction: config.direction,
+    nextDirection: config.direction,
+    color: config.color,
+    name: config.name,
+
+    moveAccumulator: 0,
+
+    baseMoveDelay: 0.074,
+    moveDelay: 0.074,
+
+    boost: 100,
+    boosting: false,
+
+    alive: true,
+
+    coresCollected: 0,
+
+    phaseUntil: 0,
+
+    previousX: config.x,
+    previousY: config.y
+  };
+}
+
+function startGame() {
+  gameMode = gameModeSelect.value;
+  difficulty = difficultySelect.value;
+
+  playerScore = 0;
+  opponentScore = 0;
+
+  playerNameEl.textContent = "CYAN";
+  opponentNameEl.textContent =
+    gameMode === "ai"
+      ? difficulty.toUpperCase() + " AI"
+      : "PINK";
+
+  state = "playing";
+
+  hideOverlay();
+
+  setupRound();
+
+  lastTimestamp = performance.now();
+
+  cancelAnimationFrame(animationFrameId);
+  animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+function setupRound() {
+  grid = createGrid();
+
+  particles = [];
+  cores = [];
+
+  roundEnded = false;
+
+  resetCycle(
+    player,
+    20,
+    Math.floor(ROWS / 2),
+    "right"
+  );
+
+  resetCycle(
+    opponent,
+    COLS - 21,
+    Math.floor(ROWS / 2),
+    "left"
+  );
+
+  markTrail(player.x, player.y, 1);
+  markTrail(opponent.x, opponent.y, 2);
+
+  spawnCore();
+
+  countdownUntil = performance.now() + 2200;
+
+  statusText.textContent = "";
+
+  updateHUD();
+}
+
+function resetCycle(cycle, x, y, direction) {
+  cycle.x = x;
+  cycle.y = y;
+
+  cycle.previousX = x;
+  cycle.previousY = y;
+
+  cycle.direction = direction;
+  cycle.nextDirection = direction;
+
+  cycle.moveAccumulator = 0;
+
+  cycle.baseMoveDelay = 0.074;
+  cycle.moveDelay = 0.074;
+
+  cycle.boost = 100;
+  cycle.boosting = false;
+
+  cycle.alive = true;
+
+  cycle.coresCollected = 0;
+  cycle.phaseUntil = 0;
+}
+
+function createGrid() {
+  const result = [];
+
+  for (let y = 0; y < ROWS; y++) {
+    result[y] = [];
+
+    for (let x = 0; x < COLS; x++) {
+      result[y][x] = 0;
+    }
+  }
+
+  return result;
+}
+
+function gameLoop(timestamp) {
+  if (state !== "playing") {
+    return;
+  }
+
+  const dt = Math.min(
+    (timestamp - lastTimestamp) / 1000,
+    0.04
+  );
+
+  lastTimestamp = timestamp;
+
+  update(dt);
+  draw();
+
+  animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+function update(dt) {
+  updateParticles(dt);
+
+  if (shakePower > 0) {
+    shakePower = Math.max(
+      0,
+      shakePower - dt * 28
+    );
+  }
+
+  if (
+    roundEnded ||
+    performance.now() < countdownUntil
+  ) {
+    updateHUD();
+    return;
+  }
+
+  updateInputs();
+
+  if (gameMode === "ai") {
+    updateAI();
+  }
+
+  updateBoost(player, keys.shiftLeft, dt);
+
+  updateBoost(
+    opponent,
+    gameMode === "two"
+      ? keys.shiftRight
+      : opponent.boosting,
+    dt
+  );
+
+  updateCycle(player, dt, 1);
+  updateCycle(opponent, dt, 2);
+
+  updateHUD();
+}
+
+function updateInputs() {
+  if (keys.w) setDirection(player, "up");
+  if (keys.s) setDirection(player, "down");
+  if (keys.a) setDirection(player, "left");
+  if (keys.d) setDirection(player, "right");
+
+  if (gameMode === "two") {
+    if (keys.up) setDirection(opponent, "up");
+    if (keys.down) setDirection(opponent, "down");
+    if (keys.left) setDirection(opponent, "left");
+    if (keys.right) setDirection(opponent, "right");
+  }
+}
+
+function setDirection(cycle, newDirection) {
+  const opposite = {
+    up: "down",
+    down: "up",
+    left: "right",
+    right: "left"
+  };
+
+  if (
+    opposite[cycle.direction] === newDirection
+  ) {
+    return;
+  }
+
+  cycle.nextDirection = newDirection;
+}
+
+function updateBoost(cycle, wantsBoost, dt) {
+  cycle.boosting =
+    wantsBoost &&
+    cycle.boost > 0;
+
+  if (cycle.boosting) {
+    cycle.boost -= 34 * dt;
+
+    cycle.moveDelay =
+      cycle.baseMoveDelay * 0.55;
+  } else {
+    cycle.boost += 12 * dt;
+
+    cycle.moveDelay =
+      cycle.baseMoveDelay;
+  }
+
+  cycle.boost = clamp(
+    cycle.boost,
+    0,
+    100
+  );
+}
+
+function updateCycle(cycle, dt, trailValue) {
+  if (!cycle.alive || roundEnded) return;
+
+  cycle.moveAccumulator += dt;
+
+  while (
+    cycle.moveAccumulator >=
+    cycle.moveDelay
+  ) {
+    cycle.moveAccumulator -= cycle.moveDelay;
+
+    moveCycle(cycle, trailValue);
+
+    if (!cycle.alive) {
+      return;
+    }
+  }
+}
+
+function moveCycle(cycle, trailValue) {
+  cycle.direction = cycle.nextDirection;
+
+  let dx = 0;
+  let dy = 0;
+
+  if (cycle.direction === "up") dy = -1;
+  if (cycle.direction === "down") dy = 1;
+  if (cycle.direction === "left") dx = -1;
+  if (cycle.direction === "right") dx = 1;
+
+  const newX = cycle.x + dx;
+  const newY = cycle.y + dy;
+
+  cycle.previousX = cycle.x;
+  cycle.previousY = cycle.y;
+
+  const phaseActive =
+    performance.now() <
+    cycle.phaseUntil;
+
+  if (
+    newX < 0 ||
+    newX >= COLS ||
+    newY < 0 ||
+    newY >= ROWS
+  ) {
+    crashCycle(cycle);
+    return;
+  }
+
+  if (
+    grid[newY][newX] !== 0 &&
+    !phaseActive
+  ) {
+    crashCycle(cycle);
+    return;
+  }
+
+  cycle.x = newX;
+  cycle.y = newY;
+
+  collectCore(cycle);
+
+  markTrail(
+    cycle.x,
+    cycle.y,
+    trailValue
+  );
+}
+
+function markTrail(x, y, value) {
+  if (
+    y >= 0 &&
+    y < ROWS &&
+    x >= 0 &&
+    x < COLS
+  ) {
+    grid[y][x] = value;
+  }
+}
+
+function crashCycle(cycle) {
+  if (!cycle.alive || roundEnded) {
+    return;
+  }
+
+  cycle.alive = false;
+
+  createExplosion(
+    cycle.x * CELL + CELL / 2,
+    cycle.y * CELL + CELL / 2,
+    cycle.color,
+    65
+  );
+
+  shakePower = 16;
+
+  endRound(cycle);
+}
+
+function endRound(loser) {
+  roundEnded = true;
+
+  const winner =
+    loser === player
+      ? opponent
+      : player;
+
+  if (winner === player) {
+    playerScore++;
+    statusText.textContent =
+      "⚡ CYAN WINS THE ROUND!";
+  } else {
+    opponentScore++;
+    statusText.textContent =
+      gameMode === "ai"
+        ? "🤖 AI WINS THE ROUND!"
+        : "⚡ PINK WINS THE ROUND!";
+  }
+
+  updateHUD();
+
+  if (
+    playerScore >= WIN_SCORE ||
+    opponentScore >= WIN_SCORE
+  ) {
+    setTimeout(endGame, 1200);
+    return;
+  }
+
+  setTimeout(() => {
+    setupRound();
+  }, 1500);
+}
+
+function endGame() {
+  state = "gameover";
+
+  const playerWon =
+    playerScore >
+    opponentScore;
+
+  showOverlay({
+    icon: playerWon ? "🏆" : "💥",
+    title: playerWon
+      ? "Neon Champion"
+      : gameMode === "ai"
+        ? "AI Wins"
+        : "Pink Wins",
+    text:
+      `Final score: ${playerScore} : ${opponentScore}`,
+    buttonText: "Play Again",
+    showMenu: false,
+    showInstructions: false
+  });
+
+  mainButton.onclick = startGame;
+}
+
+function updateAI() {
+  if (!opponent.alive) return;
+
+  const dangerDistance = {
+    easy: 3,
+    normal: 5,
+    hard: 8
+  }[difficulty];
+
+  const directions = [
+    "up",
+    "down",
+    "left",
+    "right"
+  ];
+
+  const safeDirections =
+    directions.filter(dir =>
+      canMove(opponent, dir, dangerDistance)
+    );
+
+  let selectedDirection =
+    opponent.direction;
+
+  const forwardSafe =
+    safeDirections.includes(
+      opponent.direction
+    );
+
+  if (!forwardSafe) {
+    if (safeDirections.length > 0) {
+      selectedDirection =
+        safeDirections[
+          Math.floor(
+            Math.random() *
+            safeDirections.length
+          )
+        ];
+    }
+  } else {
+    const randomTurnChance = {
+      easy: 0.07,
+      normal: 0.035,
+      hard: 0.015
+    }[difficulty];
+
+    if (
+      Math.random() <
+      randomTurnChance
+    ) {
+      const alternatives =
+        safeDirections.filter(
+          dir =>
+            dir !==
+            oppositeDirection(
+              opponent.direction
+            )
+        );
+
+      if (alternatives.length) {
+        selectedDirection =
+          alternatives[
+            Math.floor(
+              Math.random() *
+              alternatives.length
+            )
+          ];
+      }
+    }
+  }
+
+  opponent.nextDirection =
+    selectedDirection;
+
+  opponent.boosting =
+    difficulty !== "easy" &&
+    opponent.boost > 40 &&
+    safePathLength(
+      opponent,
+      selectedDirection
+    ) > 9 &&
+    Math.random() < 0.08;
+}
+
+function canMove(cycle, direction, distance) {
+  let x = cycle.x;
+  let y = cycle.y;
+
+  const vector =
+    directionVector(direction);
+
+  for (let i = 1; i <= distance; i++) {
+    x += vector.x;
+    y += vector.y;
+
+    if (
+      x < 0 ||
+      x >= COLS ||
+      y < 0 ||
+      y >= ROWS
+    ) {
+      return false;
+    }
+
+    if (grid[y][x] !== 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function safePathLength(cycle, direction) {
+  let x = cycle.x;
+  let y = cycle.y;
+
+  const vector =
+    directionVector(direction);
+
+  let distance = 0;
+
+  while (distance < 30) {
+    x += vector.x;
+    y += vector.y;
+
+    if (
+      x < 0 ||
+      x >= COLS ||
+      y < 0 ||
+      y >= ROWS ||
+      grid[y][x] !== 0
+    ) {
+      break;
+    }
+
+    distance++;
+  }
+
+  return distance;
+}
+
+function oppositeDirection(direction) {
+  return {
+    up: "down",
+    down: "up",
+    left: "right",
+    right: "left"
+  }[direction];
+}
+
+function directionVector(direction) {
+  if (direction === "up") {
+    return { x: 0, y: -1 };
+  }
+
+  if (direction === "down") {
+    return { x: 0, y: 1 };
+  }
+
+  if (direction === "left") {
+    return { x: -1, y: 0 };
+  }
+
+  return { x: 1, y: 0 };
+}
+
+function spawnCore() {
+  cores = [];
+
+  const count = 2;
+
+  for (let i = 0; i < count; i++) {
+    let x;
+    let y;
+
+    do {
+      x = 8 + Math.floor(
+        Math.random() *
+        (COLS - 16)
+      );
+
+      y = 6 + Math.floor(
+        Math.random() *
+        (ROWS - 12)
+      );
+    } while (
+      grid[y][x] !== 0
+    );
+
+    cores.push({ x, y });
+  }
+}
+
+function collectCore(cycle) {
+  const index =
+    cores.findIndex(
+      core =>
+        core.x === cycle.x &&
+        core.y === cycle.y
+    );
+
+  if (index === -1) return;
+
+  cores.splice(index, 1);
+
+  cycle.boost = Math.min(
+    100,
+    cycle.boost + 25
+  );
+
+  cycle.coresCollected++;
+
+  createExplosion(
+    cycle.x * CELL + CELL / 2,
+    cycle.y * CELL + CELL / 2,
+    COLORS.yellow,
+    24
+  );
+
+  if (
+    cycle.coresCollected % 3 === 0
+  ) {
+    cycle.phaseUntil =
+      performance.now() + 1200;
+
+    if (cycle === player) {
+      statusText.textContent =
+        "◇ PHASE MODE ACTIVE!";
+    }
+  }
+
+  setTimeout(() => {
+    if (
+      state === "playing" &&
+      cores.length < 2
+    ) {
+      addCore();
+    }
+  }, 1200);
+}
+
+function addCore() {
+  let attempts = 0;
+
+  while (attempts < 100) {
+    const x =
+      5 +
+      Math.floor(
+        Math.random() *
+        (COLS - 10)
+      );
+
+    const y =
+      4 +
+      Math.floor(
+        Math.random() *
+        (ROWS - 8)
+      );
+
+    if (
+      grid[y][x] === 0 &&
+      !cores.some(
+        core =>
+          core.x === x &&
+          core.y === y
+      )
+    ) {
+      cores.push({ x, y });
+      return;
+    }
+
+    attempts++;
+  }
+}
+
+function updateParticles(dt) {
+  for (const particle of particles) {
+    particle.update(dt);
+  }
+
+  particles =
+    particles.filter(
+      particle =>
+        particle.life > 0
+    );
+}
+
+function createExplosion(
+  x,
+  y,
+  color,
+  count
+) {
+  for (
+    let i = 0;
+    i < count;
+    i++
+  ) {
+    particles.push(
+      new Particle(
+        x,
+        y,
+        color
+      )
+    );
+  }
+}
+
+function updateHUD() {
+  playerScoreEl.textContent =
+    playerScore;
+
+  opponentScoreEl.textContent =
+    opponentScore;
+
+  const playerBoost =
+    Math.round(player.boost);
+
+  const opponentBoost =
+    Math.round(opponent.boost);
+
+  playerBoostFill.style.width =
+    `${playerBoost}%`;
+
+  opponentBoostFill.style.width =
+    `${opponentBoost}%`;
+
+  playerBoostText.textContent =
+    `${playerBoost}%`;
+
+  opponentBoostText.textContent =
+    `${opponentBoost}%`;
+}
+
+function draw() {
+  ctx.clearRect(
+    0,
+    0,
+    WIDTH,
+    HEIGHT
+  );
+
+  const shakeX =
+    shakePower > 0
+      ? randomBetween(
+          -shakePower,
+          shakePower
+        )
+      : 0;
+
+  const shakeY =
+    shakePower > 0
+      ? randomBetween(
+          -shakePower,
+          shakePower
+        )
+      : 0;
+
+  ctx.save();
+
+  ctx.translate(
+    shakeX,
+    shakeY
+  );
+
+  drawBackground();
+  drawTrails();
+  drawCores();
+
+  for (const particle of particles) {
+    particle.draw();
+  }
+
+  drawCycle(player);
+  drawCycle(opponent);
+
+  if (
+    performance.now() <
+    countdownUntil
+  ) {
+    drawCountdown();
+  }
+
+  ctx.restore();
+}
+
+function drawBackground() {
+  const gradient =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      HEIGHT
+    );
+
+  gradient.addColorStop(
+    0,
+    "#050817"
+  );
+
+  gradient.addColorStop(
+    1,
+    "#01040c"
+  );
+
+  ctx.fillStyle = gradient;
+
+  ctx.fillRect(
+    0,
+    0,
+    WIDTH,
+    HEIGHT
+  );
+
+  ctx.strokeStyle =
+    "rgba(0,247,255,0.07)";
+
+  ctx.lineWidth = 1;
+
+  for (
+    let x = 0;
+    x <= WIDTH;
+    x += CELL * 4
+  ) {
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      0
+    );
+
+    ctx.lineTo(
+      x,
+      HEIGHT
+    );
+
+    ctx.stroke();
+  }
+
+  for (
+    let y = 0;
+    y <= HEIGHT;
+    y += CELL * 4
+  ) {
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      y
+    );
+
+    ctx.lineTo(
+      WIDTH,
+      y
+    );
+
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle =
+    COLORS.cyan;
+
+  ctx.lineWidth = 3;
+
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = COLORS.cyan;
+
+  ctx.strokeRect(
+    2,
+    2,
+    WIDTH - 4,
+    HEIGHT - 4
+  );
+
+  ctx.shadowBlur = 0;
+}
+
+function drawTrails() {
+  for (
+    let y = 0;
+    y < ROWS;
+    y++
+  ) {
+    for (
+      let x = 0;
+      x < COLS;
+      x++
+    ) {
+      const value =
+        grid[y][x];
+
+      if (!value) continue;
+
+      const color =
+        value === 1
+          ? COLORS.cyan
+          : COLORS.pink;
+
+      ctx.save();
+
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = color;
+
+      ctx.fillRect(
+        x * CELL + 2,
+        y * CELL + 2,
+        CELL - 4,
+        CELL - 4
+      );
+
+      ctx.fillStyle =
+        "rgba(255,255,255,0.65)";
+
+      ctx.fillRect(
+        x * CELL + 4,
+        y * CELL + 4,
+        CELL - 8,
+        CELL - 8
+      );
+
+      ctx.restore();
+    }
+  }
+}
+
+function drawCycle(cycle) {
+  if (!cycle.alive) return;
+
+  const x =
+    cycle.x * CELL +
+    CELL / 2;
+
+  const y =
+    cycle.y * CELL +
+    CELL / 2;
+
+  const phaseActive =
+    performance.now() <
+    cycle.phaseUntil;
+
+  ctx.save();
+
+  ctx.translate(
+    x,
+    y
+  );
+
+  let angle = 0;
+
+  if (
+    cycle.direction === "right"
+  ) angle = 0;
+
+  if (
+    cycle.direction === "down"
+  ) angle = Math.PI / 2;
+
+  if (
+    cycle.direction === "left"
+  ) angle = Math.PI;
+
+  if (
+    cycle.direction === "up"
+  ) angle = -Math.PI / 2;
+
+  ctx.rotate(angle);
+
+  ctx.shadowBlur =
+    cycle.boosting
+      ? 30
+      : 18;
+
+  ctx.shadowColor =
+    cycle.color;
+
+  ctx.fillStyle =
+    cycle.color;
+
+  ctx.beginPath();
+
+  ctx.moveTo(8, 0);
+  ctx.lineTo(-5, -6);
+  ctx.lineTo(-5, 6);
+
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff";
+
+  ctx.beginPath();
+  ctx.arc(
+    2,
+    0,
+    2,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
+
+  if (phaseActive) {
+    ctx.strokeStyle =
+      COLORS.yellow;
+
+    ctx.lineWidth = 2;
+
+    ctx.shadowBlur = 18;
+    ctx.shadowColor =
+      COLORS.yellow;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      0,
+      0,
+      12,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawCores() {
+  const time =
+    performance.now() *
+    0.004;
+
+  for (const core of cores) {
+    const x =
+      core.x * CELL +
+      CELL / 2;
+
+    const y =
+      core.y * CELL +
+      CELL / 2;
+
+    const scale =
+      1 +
+      Math.sin(
+        time +
+        core.x
+      ) *
+      0.18;
+
+    ctx.save();
+
+    ctx.translate(
+      x,
+      y
+    );
+
+    ctx.scale(
+      scale,
+      scale
+    );
+
+    ctx.rotate(
+      time * 0.4
+    );
+
+    ctx.strokeStyle =
+      COLORS.yellow;
+
+    ctx.fillStyle =
+      "rgba(255,230,0,0.18)";
+
+    ctx.lineWidth = 2;
+
+    ctx.shadowBlur = 18;
+    ctx.shadowColor =
+      COLORS.yellow;
+
+    ctx.beginPath();
+
+    ctx.moveTo(0, -8);
+    ctx.lineTo(8, 0);
+    ctx.lineTo(0, 8);
+    ctx.lineTo(-8, 0);
+
+    ctx.closePath();
+
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+}
+
+function drawCountdown() {
+  const remaining =
+    countdownUntil -
+    performance.now();
+
+  let text = "GO!";
+
+  if (remaining > 1600) {
+    text = "3";
+  } else if (
+    remaining > 1050
+  ) {
+    text = "2";
+  } else if (
+    remaining > 500
+  ) {
+    text = "1";
+  }
+
+  ctx.save();
+
+  ctx.fillStyle =
+    COLORS.yellow;
+
+  ctx.font =
+    "bold 90px Arial";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "middle";
+
+  ctx.shadowBlur = 30;
+  ctx.shadowColor =
+    COLORS.yellow;
+
+  ctx.fillText(
+    text,
+    WIDTH / 2,
+    HEIGHT / 2
+  );
+
+  ctx.restore();
+}
+
+function togglePause() {
+  if (
+    state === "menu" ||
+    state === "gameover"
+  ) {
+    return;
+  }
+
+  if (state === "paused") {
+    state = "playing";
+
+    pauseButton.textContent =
+      "Pause";
+
+    hideOverlay();
+
+    lastTimestamp =
+      performance.now();
+
+    animationFrameId =
+      requestAnimationFrame(
+        gameLoop
+      );
+  } else if (
+    state === "playing"
+  ) {
+    state = "paused";
+
+    pauseButton.textContent =
+      "Resume";
+
+    showOverlay({
+      icon: "⏸️",
+      title: "Paused",
+      text:
+        "The neon arena is waiting.",
+      buttonText: "Resume",
+      showMenu: false,
+      showInstructions: false
+    });
+
+    mainButton.onclick =
+      togglePause;
+  }
+}
+
+function showOverlay({
+  icon,
+  title,
+  text,
+  buttonText,
+  showMenu,
+  showInstructions
+}) {
+  overlayIcon.textContent =
+    icon;
+
+  overlayTitle.textContent =
+    title;
+
+  overlayText.textContent =
+    text;
+
+  mainButton.textContent =
+    buttonText;
+
+  menuOptions.style.display =
+    showMenu
+      ? "grid"
+      : "none";
+
+  instructions.style.display =
+    showInstructions
+      ? "grid"
+      : "none";
+
+  overlay.classList.remove(
+    "hidden"
+  );
+}
+
+function hideOverlay() {
+  overlay.classList.add(
+    "hidden"
+  );
+}
+
+function handleKeyDown(event) {
+  const key =
+    event.key.toLowerCase();
+
+  if (
+    [
+      "w",
+      "a",
+      "s",
+      "d",
+      "arrowup",
+      "arrowdown",
+      "arrowleft",
+      "arrowright",
+      "shift",
+      "p",
+      "escape"
+    ].includes(key)
+  ) {
+    event.preventDefault();
+  }
+
+  if (key === "w") keys.w = true;
+  if (key === "a") keys.a = true;
+  if (key === "s") keys.s = true;
+  if (key === "d") keys.d = true;
+
+  if (key === "arrowup") {
+    keys.up = true;
+  }
+
+  if (key === "arrowdown") {
+    keys.down = true;
+  }
+
+  if (key === "arrowleft") {
+    keys.left = true;
+  }
+
+  if (key === "arrowright") {
+    keys.right = true;
+  }
+
+  if (
+    event.code ===
+    "ShiftLeft"
+  ) {
+    keys.shiftLeft = true;
+  }
+
+  if (
+    event.code ===
+    "ShiftRight"
+  ) {
+    keys.shiftRight = true;
+  }
+
+  if (
+    key === "p" ||
+    key === "escape"
+  ) {
+    togglePause();
+  }
+}
+
+function handleKeyUp(event) {
+  const key =
+    event.key.toLowerCase();
+
+  if (key === "w") keys.w = false;
+  if (key === "a") keys.a = false;
+  if (key === "s") keys.s = false;
+  if (key === "d") keys.d = false;
+
+  if (key === "arrowup") {
+    keys.up = false;
+  }
+
+  if (key === "arrowdown") {
+    keys.down = false;
+  }
+
+  if (key === "arrowleft") {
+    keys.left = false;
+  }
+
+  if (key === "arrowright") {
+    keys.right = false;
+  }
+
+  if (
+    event.code ===
+    "ShiftLeft"
+  ) {
+    keys.shiftLeft = false;
+  }
+
+  if (
+    event.code ===
+    "ShiftRight"
+  ) {
+    keys.shiftRight = false;
+  }
+}
+
+function clamp(
+  value,
+  min,
+  max
+) {
+  return Math.max(
+    min,
+    Math.min(
+      max,
+      value
+    )
+  );
+}
+
+function randomBetween(
+  min,
+  max
+) {
+  return (
+    min +
+    Math.random() *
+    (max - min)
+  );
+}
+
+mainButton.addEventListener(
+  "click",
+  startGame
+);
+
+pauseButton.addEventListener(
+  "click",
+  togglePause
+);
+
+restartButton.addEventListener(
+  "click",
+  startGame
+);
+
+gameModeSelect.addEventListener(
+  "change",
+  () => {
+    difficultySelect.disabled =
+      gameModeSelect.value ===
+      "two";
+  }
+);
+
+window.addEventListener(
+  "keydown",
+  handleKeyDown
+);
+
+window.addEventListener(
+  "keyup",
+  handleKeyUp
+);
+
+window.addEventListener(
+  "blur",
+  () => {
+    if (
+      state === "playing"
+    ) {
+      togglePause();
+    }
+  }
+);
+
+updateHUD();
+draw();
+</script>
+
+</body>
+</html>
